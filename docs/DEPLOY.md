@@ -126,6 +126,15 @@ npx wrangler kv namespace create GRANTS_KV
 # Prints an "id" - copy it into wrangler.toml in the next step.
 ```
 
+**"Your deploy checkout" means a working copy of `worker/` that is *not*
+this sandbox repo** — this repo's daemon auto-commits file changes and opens
+PRs against it (see root `CLAUDE.md`), so real infra identifiers typed into
+its tracked `worker/wrangler.toml` risk being picked up and shipped in an
+autonomous PR. Clone the repo (or copy `worker/`) to a separate local
+directory before doing the rest of this step, and run `wrangler deploy`
+from there — the version with placeholders is what should stay committed
+in this sandbox.
+
 Edit `worker/wrangler.toml` (in your deploy checkout) and replace the two
 placeholders with real values from above:
 
@@ -148,9 +157,12 @@ committed file (`worker/test/no-secrets.test.js` enforces there's no literal
 key material in `worker/src`):
 
 ```bash
-# Your Stripe secret key (Dashboard -> Developers -> API keys). Use the
-# live key (sk_live_...) for production; you'll temporarily swap in a
-# sk_test_... key for the rehearsal in step 5, then swap back.
+# Your Stripe secret key (Dashboard -> Developers -> API keys). Prefer
+# creating a *restricted* key (Developers -> API keys -> Create restricted
+# key) scoped to read-only access on Checkout Sessions - that's all
+# worker/src/stripe.js:verifyPurchase ever calls. Use the live key
+# (sk_live_.../rk_live_...) for production; you'll temporarily swap in a
+# test-mode key for the rehearsal in step 5, then swap back.
 npx wrangler secret put STRIPE_SECRET_KEY
 
 # A random high-entropy string used to HMAC-sign download tokens. Generate
@@ -158,6 +170,21 @@ npx wrangler secret put STRIPE_SECRET_KEY
 openssl rand -hex 32
 npx wrangler secret put SIGNING_SECRET
 ```
+
+**If a secret leaks or needs rotating:**
+- `STRIPE_SECRET_KEY` — revoke the exposed key immediately from the Stripe
+  Dashboard (**Developers → API keys → Revoke**), create a replacement, and
+  `npx wrangler secret put STRIPE_SECRET_KEY` with the new value. Revoking
+  first matters more than rotating fast — a leaked key stays exploitable
+  until it's revoked on Stripe's side, not just replaced on yours.
+- `SIGNING_SECRET` — rotating it immediately invalidates every outstanding
+  signed download URL (`worker/src/signing.js:verifyDownloadToken` verifies
+  against whatever value is currently in `env.SIGNING_SECRET`, with no
+  grace period for the old one). That's expected fallout, not a bug: any
+  buyer whose URL breaks can still get a fresh one by re-hitting
+  `/api/grant?session_id=<their session id>`, since `verifyPurchase` checks
+  Stripe's live session state, not a local record. Generate and set a new
+  value the same way as above.
 
 ## 4. Deploy the Worker and wire the payment-link redirect
 
@@ -168,8 +195,17 @@ npx wrangler deploy
 
 This publishes to `https://forge-playbook-gate.<your-account-subdomain>.workers.dev`
 (the `name` in `worker/wrangler.toml`) unless you've configured a custom
-route. Note the deployed base URL — you need it for both remaining
-sub-steps.
+route (Cloudflare dashboard → Workers & Pages → the Worker → **Settings →
+Triggers → Add Custom Domain**; not required — this URL is only consumed
+server-side by Stripe's redirect, never shown to a customer). Note the
+deployed base URL — you need it for both remaining sub-steps.
+
+**Watching for failures after launch:** `npx wrangler tail` (run from your
+deploy checkout) streams live logs from the deployed Worker, including the
+502 `handleGrant` returns when the Stripe API call itself throws (see
+`worker/src/index.js`'s catch around the entitlement verifier). For anything
+beyond ad hoc tailing, Cloudflare's dashboard → Workers & Pages → the Worker
+→ **Metrics** shows request volume and error rate without extra setup.
 
 **Wire the redirect (finishing step 2.3):** in the Stripe Payment Link's
 **After payment → Redirect customers to your website** field, set the URL
@@ -243,7 +279,19 @@ real customer could reach the store.
 6. **Verify unauthenticated access is denied:** request
    `https://<worker-url>/api/download?product=forge-playbook` with no `exp`
    or `sig` query params — confirm **HTTP 403**.
-7. **Verify the replay/rate limit:** the counter is only touched by
+7. **Verify tampered and expired signed URLs are rejected:** take the
+   working download URL from step 4 and try it twice more, each time
+   changing exactly one thing:
+   - flip one character in the `sig` value — confirm **HTTP 403**
+     (`worker/src/signing.js:verifyDownloadToken` fails the signature
+     comparison).
+   - set `exp` to a Unix timestamp a few minutes in the past — confirm
+     **HTTP 403** with an "expired" reason, distinct from the bad-signature
+     case above.
+   Both checks exercise `signing.js`'s only two rejection paths — a bug in
+   either would mean a leaked URL keeps working past its lifetime or under
+   a forged signature.
+8. **Verify the replay/rate limit:** the counter is only touched by
    `/api/grant` (`worker/src/rateLimit.js`, called from
    `worker/src/index.js:handleGrant`) — replaying the *download* URL from
    step 4 never trips it. Instead, re-request the **grant** URL from step 3
@@ -252,12 +300,12 @@ real customer could reach the store.
    Confirm the requests beyond the limit come back **HTTP 403**, and that
    the ledger still shows exactly one entry for this session (only the
    first grant writes a ledger record).
-8. **Refund the test purchase:** in the Stripe Dashboard, open the payment
+9. **Refund the test purchase:** in the Stripe Dashboard, open the payment
    under **Payments**, click **Refund**, refund the full amount. (Test-mode
    payments aren't real money, but refunding confirms your refund flow
    works before you need it for a real customer.)
-9. Delete the test ledger object you noted in step 5, then switch
-   `STRIPE_SECRET_KEY` back to the live key as described above.
+10. Delete the test ledger object you noted in step 5, then switch
+    `STRIPE_SECRET_KEY` back to the live key as described above.
 
 Only after this checklist passes should you finish step 2.5 (wire the real
 Payment Link into production `config.js` and merge/deploy).
