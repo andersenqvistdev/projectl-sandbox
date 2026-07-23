@@ -9,7 +9,8 @@
  * A verifier is: async (request, env) => VerifierResult
  *
  * VerifierResult (granted):
- *   { granted: true, grantKey: string, product: string, amount: number|null }
+ *   { granted: true, grantKey: string, product: string, amount: number|null,
+ *     buyerEmail?: string|null, purchasedAt?: string|null }
  *     - grantKey: a stable identifier used for rate-limiting/replay and for
  *       the ledger's sha256'd session identifier. For "purchase" this is the
  *       Stripe checkout session id. Never the raw value from an untrusted
@@ -19,6 +20,12 @@
  *       entry — see verifyPurchase in stripe.js).
  *     - amount: integer minor-currency-unit amount (e.g. cents) for the
  *       ledger, or null if not applicable.
+ *     - buyerEmail: optional, used to personalize the delivery watermark
+ *       (see watermark.js). Omit or return null when there's no buyer
+ *       identity to attach (e.g. a future membership entitlement) — the
+ *       watermark then falls back to the order id alone.
+ *     - purchasedAt: optional, YYYY-MM-DD watermark purchase date. Omit or
+ *       return null when not applicable.
  *
  * VerifierResult (denied):
  *   { granted: false, reason: string, status?: number }

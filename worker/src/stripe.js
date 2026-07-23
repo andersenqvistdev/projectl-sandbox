@@ -78,5 +78,19 @@ export async function verifyPurchase(request, env) {
     grantKey: sessionId,
     product,
     amount: typeof session.amount_total === 'number' ? session.amount_total : null,
+    buyerEmail: session.customer_details?.email || null,
+    purchasedAt: formatDateUTC(session.created),
   };
+}
+
+/**
+ * Stripe's `created` is Unix seconds. Returns YYYY-MM-DD (UTC) for the
+ * watermark's "purchased" date, or null if `created` is missing/invalid —
+ * callers fall back gracefully rather than stamping an "Invalid Date".
+ */
+function formatDateUTC(unixSeconds) {
+  if (typeof unixSeconds !== 'number' || !Number.isFinite(unixSeconds)) {
+    return null;
+  }
+  return new Date(unixSeconds * 1000).toISOString().slice(0, 10);
 }

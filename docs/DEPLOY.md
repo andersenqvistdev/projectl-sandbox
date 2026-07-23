@@ -302,3 +302,35 @@ Reactivating is the same toggle in reverse, once you're ready to resume.
 also works, but requires a PR + merge + redeploy cycle and doesn't stop
 anyone who already loaded the old page with the live link cached. Prefer
 the Stripe-side toggle.)
+
+## What happens at delivery time (watermarking)
+
+`/api/grant` verifies the Stripe checkout session, then hands back a
+short-lived signed URL to `/api/download` — this part is unchanged from the
+original gate design. What changed: **`/api/download` never streams the raw
+R2 object.** On every request it:
+
+1. Fetches the raw artifact bytes from R2 (the plain file uploaded in §3).
+2. Builds a watermark sentence: the buyer's email domain (e.g. "buyer at
+   example.com" — only the domain, not the full address, appears in the
+   document itself), the order id (first 8 hex chars of the same
+   sha256(session id) written to the sales ledger, see `docs/LEDGER.md`),
+   the Stripe purchase date, and the delivery date. If the buyer's email is
+   unavailable, the watermark falls back to the order id alone.
+3. Stamps that sentence into an **in-memory copy** of the artifact — a
+   low-opacity footer on every PDF page (`pdf-lib`), a footer banner
+   injected into the HTML (`worker/src/watermark/html.js`), or a stamped
+   colophon on the EPUB's first content document (`worker/src/watermark/
+   epub.js` — see that file's header comment for why a full spine-edit
+   colophon was not used).
+4. Streams the stamped bytes back as the response. The unstamped bytes
+   never leave the Worker.
+
+Every buyer therefore gets their own distinct copy, generated on the fly —
+there's no watermarked master to keep in sync, and no way to reach the raw
+file directly: `/api/download` fails closed (500) rather than falling back
+to raw bytes if the artifact's format isn't recognized or stamping fails.
+
+This is a deterrence measure, not DRM: a buyer can still read, print, or
+copy their book freely. What they can't do unnoticed is redistribute it
+without a marker tying that specific copy back to their purchase.

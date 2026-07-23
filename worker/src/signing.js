@@ -25,21 +25,31 @@ function toBase64Url(bytes) {
   return btoa(binary).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
 }
 
-function payloadString(product, exp) {
-  return `${product}:${exp}`;
+function payloadString(product, orderId, exp) {
+  return `${product}:${orderId}:${exp}`;
 }
 
-export async function signDownloadToken(product, env, ttlSeconds = MAX_TTL_SECONDS) {
+/**
+ * `orderId` (the sha256-of-session-id prefix, see index.js) is bound into
+ * the signature alongside product+exp. It is not secret, but binding it
+ * stops the order id from being swapped on the URL to pull down a
+ * different buyer's watermark data from GRANTS_KV at download time.
+ */
+export async function signDownloadToken(product, orderId, env, ttlSeconds = MAX_TTL_SECONDS) {
   const ttl = Math.min(ttlSeconds, MAX_TTL_SECONDS);
   const exp = Math.floor(Date.now() / 1000) + ttl;
   const key = await importKey(env.SIGNING_SECRET);
-  const sig = await crypto.subtle.sign('HMAC', key, new TextEncoder().encode(payloadString(product, exp)));
-  return { product, exp, sig: toBase64Url(sig) };
+  const sig = await crypto.subtle.sign(
+    'HMAC',
+    key,
+    new TextEncoder().encode(payloadString(product, orderId, exp))
+  );
+  return { product, orderId, exp, sig: toBase64Url(sig) };
 }
 
-export async function verifyDownloadToken(product, exp, sig, env) {
+export async function verifyDownloadToken(product, orderId, exp, sig, env) {
   const expNum = Number(exp);
-  if (!product || !Number.isFinite(expNum) || !sig) {
+  if (!product || !orderId || !Number.isFinite(expNum) || !sig) {
     return { valid: false, reason: 'malformed token' };
   }
   if (Math.floor(Date.now() / 1000) > expNum) {
@@ -50,7 +60,7 @@ export async function verifyDownloadToken(product, exp, sig, env) {
   const expectedSig = await crypto.subtle.sign(
     'HMAC',
     key,
-    new TextEncoder().encode(payloadString(product, expNum))
+    new TextEncoder().encode(payloadString(product, orderId, expNum))
   );
   const expectedSigB64 = toBase64Url(expectedSig);
 
