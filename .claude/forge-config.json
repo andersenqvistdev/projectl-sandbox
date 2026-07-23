@@ -223,7 +223,7 @@
       "requireTestsPass": true,
       "requireLintPass": true,
       "requireApproval": true,
-      "allowMergeToMain": false,
+      "allowMergeToMain": true,
       "allowedAuthors": [
         "daemon",
         "forge-*"
