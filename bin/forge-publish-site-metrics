@@ -1,0 +1,207 @@
+#!/usr/bin/env python3
+"""
+forge-publish-site-metrics — bake the live calibration number into the site.
+
+The marketing site quotes a "verified success (30-day)" figure. Hardcoded, it
+rots into an overstatement the moment autonomy drifts (2026-07-16: site said
+78.9%, reality was 74.3%). This tool reads the latest nightly-calibration
+snapshot and rewrites the ``[data-metric]`` spots in the forge-website HTML to
+the current measured value, so the published number always matches ground truth.
+
+The site is a static, strict-CSP page (no client-side fetch), so the number must
+be baked in at publish time — which is exactly what this does. Run it after a
+nightly calibration, review the diff, and commit forge-website to publish. It is
+NEVER auto-published: site publishing stays operator-gated.
+
+The figure is FLOORED to the integer (74.3% -> "~74%") so a rounding artifact can
+never turn it into an overstatement.
+
+Usage:
+  bin/forge-publish-site-metrics [--site-dir DIR] [--write] [--json]
+                                 [--company-dir DIR]
+
+Options:
+  --site-dir DIR    forge-website site dir (default: ../forge-website/site
+                    relative to this repo, or $FORGE_SITE_DIR)
+  --write           Apply the edits (default: dry run — print what would change)
+  --json            Emit a machine-readable summary
+  --company-dir DIR Override .company/ directory location
+  -h, --help        Show this message and exit
+
+Exit codes:
+  0  Success (edits applied, or dry run with a computable number)
+  1  No calibration snapshot yet, or site dir / metric markers not found
+  2  Usage error
+"""
+
+from __future__ import annotations
+
+import argparse
+import json
+import re
+import sys
+from pathlib import Path
+
+_PROJECT_ROOT = Path(__file__).resolve().parent.parent
+_HOOKS_COMPANY = _PROJECT_ROOT / ".claude" / "hooks" / "company"
+sys.path.insert(0, str(_HOOKS_COMPANY))
+
+# The marketing pages and the metric key each carries. Extend this list to
+# publish more metrics; the HTML must tag the spot with the matching
+# ``data-metric="<key>"`` attribute.
+SITE_FILES = ("index.html", "how-it-works.html")
+METRIC_KEY = "verified-30d"
+
+# A number token inside a tagged element's text: "74%", "74.3 %", "~74%".
+_NUM_RE = re.compile(r"~?\s*\d+(?:\.\d+)?\s*%")
+
+
+def compute_verified_pct(company_dir: Path) -> int | None:
+    """Floored integer percent for the 30-day windowed verified-autonomy rate.
+
+    Returns None when no calibration snapshot exists yet.
+    """
+    import autonomy_metrics as am
+
+    snap = am.load_autonomy_audit(company_dir)
+    if not isinstance(snap, dict):
+        return None
+    gt = snap.get("ground_truth", {}) or {}
+    rate = gt.get("verified_autonomy_rate_windowed")
+    if rate is None:
+        rate = gt.get("verified_autonomy_rate")
+    if not isinstance(rate, (int, float)):
+        return None
+    return int(rate * 100)  # floor — never round UP into an overstatement
+
+
+def update_metric_html(html: str, metric_key: str, value: str) -> tuple[str, int, int]:
+    """Rewrite the number inside every ``data-metric="<key>"`` element to *value*.
+
+    Only the number token is replaced, so surrounding label text
+    ("Verified success (30d): ~74%") is preserved. Returns
+    ``(new_html, n_changed, n_found)`` — ``n_found`` counts marker elements that
+    hold a number (so the caller can tell "no markers" from "already correct").
+    Pure function — unit-tested without a real snapshot or site.
+    """
+    tag_re = re.compile(r'(data-metric="' + re.escape(metric_key) + r'"[^>]*>)([^<]*)')
+
+    changed = 0
+    found = 0
+
+    def repl(m: re.Match) -> str:
+        nonlocal changed, found
+        head, text = m.group(1), m.group(2)
+        if not _NUM_RE.search(text):
+            return m.group(0)
+        found += 1
+        new_text = _NUM_RE.sub(value, text)
+        if new_text != text:
+            changed += 1
+        return head + new_text
+
+    return tag_re.sub(repl, html), changed, found
+
+
+def _default_site_dir() -> Path:
+    import os
+
+    env = os.environ.get("FORGE_SITE_DIR")
+    if env:
+        return Path(env)
+    return _PROJECT_ROOT.parent / "forge-website" / "site"
+
+
+def main() -> int:
+    parser = argparse.ArgumentParser(add_help=False)
+    parser.add_argument("--site-dir")
+    parser.add_argument("--company-dir")
+    parser.add_argument("--write", action="store_true")
+    parser.add_argument("--json", action="store_true")
+    parser.add_argument("-h", "--help", action="store_true")
+    args = parser.parse_args()
+
+    if args.help:
+        print(__doc__)
+        return 0
+
+    import company_resolver as cr
+
+    # Anchor to THIS repo, not cwd — the tool is typically run from anywhere
+    # (or a nightly hook) and must always read the framework's own .company/.
+    company_dir = (
+        Path(args.company_dir)
+        if args.company_dir
+        else cr.get_company_dir(_PROJECT_ROOT)
+    )
+    pct = compute_verified_pct(company_dir)
+    if pct is None:
+        msg = "no calibration snapshot yet (run bin/forge-calibrate-nightly first)"
+        print(
+            json.dumps({"ok": False, "error": msg}) if args.json else f"error: {msg}",
+            file=sys.stderr,
+        )
+        return 1
+
+    value = f"~{pct}%"
+    site_dir = Path(args.site_dir) if args.site_dir else _default_site_dir()
+
+    results = []
+    total_changed = 0
+    total_found = 0
+    for name in SITE_FILES:
+        path = site_dir / name
+        if not path.exists():
+            results.append(
+                {"file": name, "status": "missing", "changed": 0, "found": 0}
+            )
+            continue
+        html = path.read_text(encoding="utf-8")
+        new_html, n, found = update_metric_html(html, METRIC_KEY, value)
+        total_changed += n
+        total_found += found
+        if n == 0:
+            status = "up-to-date" if found else "no-marker"
+        else:
+            status = "would-change" if not args.write else "written"
+        if n and args.write:
+            path.write_text(new_html, encoding="utf-8")
+        results.append({"file": name, "status": status, "changed": n, "found": found})
+
+    if args.json:
+        print(
+            json.dumps(
+                {
+                    "ok": True,
+                    "value": value,
+                    "total_changed": total_changed,
+                    "total_found": total_found,
+                    "files": results,
+                },
+                indent=2,
+            )
+        )
+    else:
+        print(f"verified-success (30d, floored) = {value}")
+        for r in results:
+            print(
+                f"  {r['file']:22s} {r['status']:14s} "
+                f"({r['found']} marker(s), {r['changed']} changed)"
+            )
+        if not args.write and total_changed:
+            print(
+                "\n(dry run — re-run with --write to apply, then commit forge-website)"
+            )
+
+    if total_found == 0:
+        # No data-metric markers anywhere — the HTML has not been tagged.
+        print(
+            'warning: no data-metric="%s" markers found in the site' % METRIC_KEY,
+            file=sys.stderr,
+        )
+        return 1
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())
