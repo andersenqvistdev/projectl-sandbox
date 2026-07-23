@@ -1,0 +1,419 @@
+<!doctype html><html lang='en'><head><meta charset='utf-8'><meta name='viewport' content='width=device-width,initial-scale=1'><title>The Forge Playbook — Free sample &middot; Modules 0&ndash;1</title><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Anton&family=Hanken+Grotesk:ital,wght@0,400;0,500;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet"><style>
+:root {
+  --ink:#1a1310; --ember:#ff6a1a; --ember-deep:#c2440a; --amber:#ffb347;
+  --paper:#faf7f4; --charred:#0b0705;
+  --display:'Anton','Arial Narrow',Impact,sans-serif;
+  --mono:'JetBrains Mono',ui-monospace,monospace;
+}
+* { box-sizing:border-box; }
+body { font:17px/1.65 'Hanken Grotesk',-apple-system,sans-serif; color:var(--ink); background:var(--paper);
+       margin:0; }
+.page { max-width:44rem; margin:0 auto; padding:1rem 1.5rem 6rem; }
+h1 { font-size:2.2rem; line-height:1.15; margin:4rem 0 1rem; border-bottom:3px solid var(--ember-deep); padding-bottom:.5rem; }
+h2 { font-size:1.45rem; margin:2.5rem 0 .75rem; color:var(--ember-deep); }
+h3 { font-size:1.15rem; margin:1.75rem 0 .5rem; }
+code { font-family:var(--mono); font-size:.85em; background:#efe7e1; padding:.1em .35em; border-radius:3px; }
+pre { background:#211712; color:#f3e9df; padding:1rem 1.25rem; border-radius:8px; overflow-x:auto; }
+pre code { background:none; color:inherit; padding:0; }
+blockquote { border-left:4px solid var(--ember-deep); margin:1.5rem 0; padding:.75rem 1.25rem; background:#f3ece6;
+             border-radius:0 8px 8px 0; font-style:normal; }
+table { border-collapse:collapse; width:100%; margin:1.25rem 0; font-size:.92em; }
+th,td { border:1px solid #d8cec6; padding:.5rem .75rem; text-align:left; }
+th { background:#efe7e1; }
+ol li, ul li { margin:.4rem 0; }
+
+/* ---------- cover: the dark molten opening ---------- */
+.cover {
+  min-height:100vh; display:flex; flex-direction:column; justify-content:space-between;
+  background:
+    radial-gradient(120% 65% at 50% 108%, rgba(255,106,26,.28), rgba(255,106,26,.06) 55%, transparent 75%),
+    repeating-linear-gradient(0deg,  rgba(255,106,26,.05) 0 1px, transparent 1px 28px),
+    repeating-linear-gradient(90deg, rgba(255,106,26,.05) 0 1px, transparent 1px 28px),
+    var(--charred);
+  color:#fff6ec; padding:6vh 8vw 5vh;
+  print-color-adjust:exact; -webkit-print-color-adjust:exact;
+}
+.cover .eyebrow { font-family:var(--mono); font-size:.72rem; letter-spacing:.22em; text-transform:uppercase;
+                  color:var(--amber); }
+.cover .titleblock { margin:auto 0; }
+.cover h1.booktitle { font-family:var(--display); font-weight:400; border:none; padding:0; margin:0;
+  font-size:clamp(3.2rem,9vw,6.4rem); line-height:.95; letter-spacing:.01em; text-transform:uppercase; }
+.cover h1.booktitle .hot { color:var(--ember); }
+.cover .subtitle { margin:1.4rem 0 0; font-size:clamp(1rem,2.2vw,1.3rem); font-weight:500; color:#e8dccd;
+                   max-width:34rem; }
+.cover .edition { margin-top:1.1rem; font-family:var(--mono); font-size:.78rem; letter-spacing:.14em;
+                  text-transform:uppercase; color:var(--amber); }
+.rail { display:flex; align-items:center; gap:0; margin:3.2rem 0 0; max-width:34rem; }
+.rail .seg { flex:1; height:2px; background:linear-gradient(90deg,var(--h1),var(--h2)); }
+.rail .stn { width:1.65rem; height:1.65rem; border-radius:50%; flex:none; display:flex; align-items:center;
+  justify-content:center; font-family:var(--mono); font-weight:700; font-size:.72rem;
+  border:2px solid var(--h); color:var(--h); background:rgba(11,7,5,.85); }
+.cover .foot { display:flex; justify-content:space-between; align-items:baseline; gap:1rem;
+  font-family:var(--mono); font-size:.72rem; letter-spacing:.1em; color:#b9aa97; }
+.cover .foot .fx { color:var(--ember); }
+
+.colophon { min-height:60vh; display:flex; flex-direction:column; justify-content:flex-end;
+  padding:3rem 0 2rem; font-size:.85rem; line-height:1.7; color:#6b5d52; }
+.colophon p { margin:.35rem 0; max-width:30rem; }
+.colophon a { color:var(--ember-deep); }
+@media print { .colophon { page-break-after:always; min-height:auto; } }
+
+@media print {
+  .page { max-width:none; font-size:11pt; }
+  h1 { page-break-before:always; }
+  pre { white-space:pre-wrap; }
+  .cover { min-height:auto; height:100%; page-break-after:always; }
+  @page :first { margin:0; }
+}
+</style></head><body><div class="cover">
+  <div class="eyebrow">Forge &middot; Structured Autonomy</div>
+  <div class="titleblock">
+    <h1 class="booktitle">The Forge<br><span class="hot">Playbook</span></h1>
+    <p class="subtitle">Found, run, and trust an AI software company &mdash; inside walls it cannot cross.</p>
+    <div class="edition">Free sample &middot; Modules 0&ndash;1</div>
+    <div class="rail" role="img" aria-label="Nine stations, install to scale"><span class="stn" style="--h:#e89a2e">1</span><span class="seg" style="--h1:#e89a2e;--h2:#ef8d26"></span><span class="stn" style="--h:#ef8d26">2</span><span class="seg" style="--h1:#ef8d26;--h2:#f57f20"></span><span class="stn" style="--h:#f57f20">3</span><span class="seg" style="--h1:#f57f20;--h2:#fa731d"></span><span class="stn" style="--h:#fa731d">4</span><span class="seg" style="--h1:#fa731d;--h2:#ff6a1a"></span><span class="stn" style="--h:#ff6a1a">5</span><span class="seg" style="--h1:#ff6a1a;--h2:#ff5c15"></span><span class="stn" style="--h:#ff5c15">6</span><span class="seg" style="--h1:#ff5c15;--h2:#ff4c11"></span><span class="stn" style="--h:#ff4c11">7</span><span class="seg" style="--h1:#ff4c11;--h2:#ff3d0f"></span><span class="stn" style="--h:#ff3d0f">8</span><span class="seg" style="--h1:#ff3d0f;--h2:#ff2e0c"></span><span class="stn" style="--h:#ff2e0c">9</span></div>
+  </div>
+  <div class="foot">
+    <span>Written alongside the AI company it describes</span>
+    <span><span class="fx">forgeframework.dev</span></span>
+  </div>
+</div><div class='page'><section class="colophon">
+  <p>&copy; 2026 Forge Framework &middot; a product of Anders Enqvist Consult AB.
+  All rights reserved.</p>
+  <p>Free sample &middot; Modules 0&ndash;1 &middot; v1.0</p>
+  <p>This free sample may be shared freely and unmodified &mdash; send it to anyone who runs agents on a repo they care about.</p>
+  <p>The Forge framework itself is free, open-source software under the MIT
+  license. This book is a separate commercial work and is not covered by that
+  license.</p>
+</section><h1 id="module-0-read-this-first">Module 0 — Read This First</h1>
+<p>You bought (or are sampling) a playbook about handing real work to AI agents. You are probably feeling two things at once: this could change how I work, and this could wreck my repo. Both instincts are correct, and this book takes both seriously.</p>
+<p>This module exists so nothing later surprises you — not the cost, not the time, not the first unattended run. Ten minutes here saves you a stalled lab at 11pm.</p>
+<h2 id="what-you-need">What you need</h2>
+<p><strong>A Claude subscription.</strong> The labs run inside Claude Code, so your Claude plan is the fuel line. The honest breakdown:</p>
+<ul>
+<li><strong>Modules 1–5 are light.</strong> You drive Claude Code by hand in short sessions — tripping guardrails, founding your company, running single tasks. A Pro plan handles these fine.</li>
+<li><strong>Module 6 runs agents in supervised bursts.</strong> Still workable on Pro, but you may hit your usage cap if you do the whole module in one sitting.</li>
+<li><strong>Module 7 is the unattended capstone.</strong> The lab is a daytime run — agents work while you're out of the building — and the challenge is the overnight version, where they work while you sleep. For that night you want headroom — a Max plan is the difference between waking up to a night's work and waking up to a run that stalled at 2am on your cap.</li>
+</ul>
+<p>One thing to be clear about: hitting a cap mid-lab is <strong>annoying, not dangerous</strong>. The safety hooks you install in Module 1 are deterministic programs, not model behavior — they keep working on any plan. A stalled run means less got done, never that something unsafe got done. On Pro, do Modules 1–6 comfortably, then either upgrade for the capstone or run it as a shorter evening flight.</p>
+<p>There is no per-token billing anywhere in this book. Forge runs on your flat Claude subscription; the framework itself is open source and free.</p>
+<p><strong>A GitHub account with the <code>gh</code> CLI authenticated.</strong> From Module 2 onward, GitHub is your safety net — every piece of agent work arrives as a pull request you can inspect, merge, or close. Before you start, run:</p>
+<pre><code class="language-bash">gh auth status
+</code></pre>
+<p>If that errors, <code>gh auth login</code> fixes it. Two GitHub facts worth knowing before you commit to a plan: branch protection rules — which Module 5 leans on — are free on <strong>public</strong> repos but require a paid plan on private ones, and GitHub Actions minutes are capped on private repos. Your sandbox is a throwaway with nothing sensitive in it, so make it public and both problems disappear.</p>
+<p><strong>macOS or Linux, and a terminal you are comfortable in.</strong> The framework was built and battle-tested on macOS. Linux works; where the book touches OS-specific machinery (Module 7's daemon autostart uses launchd on macOS), the installer offers a systemd path and the text flags the difference. Windows is not supported natively; WSL2 may work, but the labs were not written against it, and this book does not pretend otherwise.</p>
+<p><strong>A few standard tools.</strong> The installer checks its own prerequisites — Claude Code CLI, Python 3.10+, <code>uv</code>, and git are required; <code>ruff</code> and Node are optional. Module 1 walks you through getting the framework; once you have it locally, preflight your machine with:</p>
+<pre><code class="language-bash">./install.sh --check
+</code></pre>
+<p>It prints a pass/fail line per tool and tells you exactly how to install anything missing. No guessing.</p>
+<p><strong>Time: roughly 1–3 hours per module.</strong> The full table is below. You can spread a module across evenings — every lab ends at a stable state, and nothing rots if you stop for three days.</p>
+<h2 id="time-and-intensity-module-by-module">Time and intensity, module by module</h2>
+<p>"Agent intensity" is about your usage budget and your attention. <strong>Low</strong> means a handful of short exchanges you drive by hand. <strong>Medium</strong> means sustained sessions where Claude does multi-step work while you watch. <strong>High</strong> means agents running with you out of the loop — usage accumulates while you are not typing, and a Pro plan can run dry mid-flight.</p>
+<table>
+<thead>
+<tr>
+<th>Module</th>
+<th>Focus</th>
+<th>Hands-on time</th>
+<th>Agent intensity</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>Structured autonomy — install, then break your own rules</td>
+<td>1–2 h</td>
+<td>Low</td>
+</tr>
+<tr>
+<td>2</td>
+<td>Found your company — hire your first AI employees</td>
+<td>1–2 h</td>
+<td>Low</td>
+</tr>
+<tr>
+<td>3</td>
+<td>First work by hand — one task, end to end</td>
+<td>2–3 h</td>
+<td>Medium</td>
+</tr>
+<tr>
+<td>4</td>
+<td>Plan like a CEO — roadmaps and the admission gate</td>
+<td>1–2 h</td>
+<td>Medium</td>
+</tr>
+<tr>
+<td>5</td>
+<td>The GitHub flow safety net — PRs, labels, branch protection</td>
+<td>2–3 h</td>
+<td>Medium</td>
+</tr>
+<tr>
+<td>6</td>
+<td>Go autonomous with a canary</td>
+<td>2–3 h</td>
+<td>High</td>
+</tr>
+<tr>
+<td>7</td>
+<td>Operate: steer don't row — the unattended capstone</td>
+<td>~1 h active, plus hours away</td>
+<td>High</td>
+</tr>
+<tr>
+<td>8</td>
+<td>Scale and economics — dials, numbers, and choosing your execution provider</td>
+<td>1–2 h</td>
+<td>Low</td>
+</tr>
+<tr>
+<td>9</td>
+<td>Feed the company — the scout loop</td>
+<td>1–2 h</td>
+<td>Low</td>
+</tr>
+</tbody>
+</table>
+<p>Two budget notes baked into the labs. First, the framework ships configured for 5 parallel workers; the labs pin it to 1–2 through Module 7 — kinder to your laptop and your usage cap, and raising it is precisely the decision Module 8 teaches you to make with data. Second, Modules 6 and 7 are the only places significant usage happens without you present. Everything before that, you can stop by closing the terminal.</p>
+<h2 id="the-sandbox-contract">The sandbox contract</h2>
+<p>Here is the deal this book makes with you, and it is not negotiable:</p>
+<p><strong>In Module 1 you create one throwaway project. That single sandbox carries through all nine modules. You never, at any point, run a lab against a repository you care about.</strong></p>
+<p>This matters for a reason beyond caution. The labs deliberately provoke failure — you will attempt a push that gets blocked, write a fake credential that gets refused, and in Module 6 send a booby-trapped task to see whether the admission gate catches it. Provoking failure is how you learn to trust the guardrails: a guardrail you have never seen say "no" is a guardrail you only believe in. That kind of deliberate arson belongs in a building you own and nobody lives in.</p>
+<p>The sandbox also accumulates. The company you found in Module 2 works in it, the plans from Module 4 live in it, the overnight run in Module 7 fills its PR list. By Module 8 it is a small, real history of agent-produced work you can measure — and Module 9's closing audit still leans on it. Deleting it mid-book means redoing setup; the modules assume continuity.</p>
+<p>When you finish the book and want Forge on your actual project, that is a separate, deliberate migration — the full Playbook covers how to introduce it to a real codebase safely, starting with the files you protect before anything else.</p>
+<h2 id="the-github-bridge">The GitHub bridge</h2>
+<p>Module 1 runs entirely local — no remote, on purpose, so the first guardrail you trip (a blocked push) can't touch anything even in principle.</p>
+<p>At the <strong>end of Module 2</strong>, you connect the sandbox to GitHub: create the remote repository, make your first push, enable GitHub Actions, and create two labels the automation uses to route pull requests for human attention versus auto-merge. It takes about ten minutes.</p>
+<p>I am telling you now so the shift does not feel like scope creep when it arrives. From Module 3 onward, everything your AI employees produce shows up as a pull request on that repo; from Module 5 onward, GitHub's own branch protection becomes a second, independent layer of your safety net — one that holds even if every local hook were deleted. The bridge is short, but everything after it stands on it.</p>
+<h2 id="how-to-read-this-book">How to read this book</h2>
+<p>Every module runs the same rhythm:</p>
+<ol>
+<li><strong>Concept</strong> — the idea, with the real numbers that motivated it.</li>
+<li><strong>Walkthrough</strong> — me doing the thing, annotated, so you see the expected shape before you try.</li>
+<li><strong>Lab</strong> — you doing the thing, in your sandbox, with exact commands.</li>
+<li><strong>Challenge</strong> — an optional harder version with deliberate gaps you must discover yourself. Skippable, but the challenges are where the understanding compounds.</li>
+<li><strong>War story</strong> — something that genuinely went wrong in five months of running this system, retold plainly, ending in the principle it taught us.</li>
+</ol>
+<p>Two conventions to know.</p>
+<p><strong>Checkpoints are observable, not introspective.</strong> A lab checkpoint is never "you should now understand X." It is always a thing that appears or a thing that refuses: a blocked-push message in your transcript, a file that does not exist because a hook stopped it, a label on a PR, a line in a log. If the observable thing happened, you passed — whether or not it feels understood yet. If it did not, something is wrong, and that is useful information, not a personal failing.</p>
+<p><strong>Every lab has a failure branch.</strong> Agents fail in mundane ways: a worker that ships nothing, a stuck task, a flaky CI run. You will hit some of these — we certainly did — so each lab includes a short "when this goes wrong" box: symptom, what to check, how to recover, drawn directly from our own incident history. The happy path is the lab; the failure branch is the education.</p>
+<h2 id="why-you-can-trust-the-numbers-in-this-book">Why you can trust the numbers in this book</h2>
+<p>Everything here comes from operating a real AI software company for <strong>5 months</strong>: seventeen AI employees working one codebase, <strong>700+ merged pull requests</strong>, a daemon that runs overnight, and a full audit trail. (That counter is recounted against the repository every time this book is revised — it only ever goes up.)</p>
+<p>That includes the embarrassing parts. Early on, our system claimed an 85% success rate. When we built honest verification and measured what had actually shipped, we found that at the worst point <strong>91.5% of "completed" tasks were phantoms</strong> — work reported done that delivered nothing. Clawing the real number upward, failure by diagnosed failure, is where most of this book's lessons come from. The guardrails you will install in Module 1 are not theoretical designs; each one exists because a specific thing went wrong, and the war stories tell you which.</p>
+<p>When this book says a command works, it was run against the real framework. When it cites a number, the number was measured — and the measurement usually started as a bad surprise. You will not find "dramatically improves" anywhere in these pages; you will find failure rates with decimal points.</p>
+<p>That is the deal. Sandbox ready, <code>gh</code> authenticated, expectations set.</p>
+<p>Turn the page. Module 1 starts by teaching the machine to tell you no.</p><h1 id="module-1-structured-autonomy-fast-and-safe">Module 1 — Structured Autonomy: Fast AND Safe</h1>
+<p>There are exactly two ways to fail at agent autonomy, and you are currently at risk of one of them.</p>
+<p>The first way is to let the agent run. You have seen the demos: an AI writes the code, commits it, opens the PR, merges it. It works, right up until it confidently does the wrong thing at machine speed — and machine speed means the wrong thing happens forty times before you check in. We know because we run an AI software company on Claude Code, and the audit numbers below are ours.</p>
+<p>The second way is to trust nothing. Every file write, every commit, every command gets your personal review. This feels responsible. It is also a decision to cap your AI workforce at the speed of your own attention — a workforce that never sleeps, throttled by a human who does. Over five months our system merged more than 700 pull requests. If each one had required babysitting every intermediate step, the realistic number is a few dozen, and we would have quit from tedium long before month two.</p>
+<p>This module teaches the third option, the one this playbook is built on: <strong>structured autonomy</strong>. Deterministic code — plain, boring, non-negotiable programs — decides what the AI is <em>allowed</em> to do. The AI gets to be creative only inside those walls. You will learn the four-tier trust model that classifies every action an agent can take, meet the three guardrail hooks that enforce it, install the framework into a sandbox, and then — the part most tutorials skip — deliberately attack your own installation until it tells you no.</p>
+<p>By the end you will have watched a guardrail refuse you twice, on purpose, with zero damage done. That experience is the point. A guardrail you have never seen refuse anyone is a guardrail you merely hope works.</p>
+<hr />
+<h2 id="the-two-ways-to-fail">The Two Ways to Fail</h2>
+<p>Let's put real numbers on both failure modes, because vague warnings don't change behavior and numbers do.</p>
+<p><strong>Failure mode one: full automation.</strong> Early in our company's life, the dashboard said 85% of tasks succeeded. It was wrong, and not by a little. When we built honest verification — checking whether a "completed" task actually produced a merged, on-target change — the verified rate was 43%. In the worst measured stretch, 91.5% of completions were phantoms: work the system claimed was done that either didn't exist or didn't do what the task asked. Later, after several rounds of fixes, we <em>still</em> measured a 31.2% phantom rate. At one point we discovered 45 pull requests our metrics counted as shipped had actually been closed without ever merging. Nobody lied to us. The system reported what it believed, and what it believed was optimistic.</p>
+<p>Here is the uncomfortable mechanism behind those numbers: an agent that fails does not look like an agent that fails. It looks like an agent that succeeds — tidy commit message, confident summary, green status — because the model generating the failure is the same model generating the report about it. At human speed you'd catch this. At machine speed, overnight, unattended, you get forty tidy, confident, wrong outcomes before breakfast.</p>
+<p><strong>Failure mode two: manual everything.</strong> The cure most careful developers reach for is approving every action by hand. Do the math on what that costs. Our system averages multiple worked tasks per day across a queue that runs while we sleep. If every write, commit, and push waited for a human click, throughput drops to whatever one distracted person can review — and the <em>quality</em> of your review degrades too, because clicking "approve" two hundred times a day turns you into a rubber stamp with anxiety. You get the bottleneck and, eventually, none of the safety.</p>
+<p>Structured autonomy resolves the tension by refusing to make it one decision. Instead of asking "do I trust the agent?" — a question with no good answer — you ask "do I trust the agent <em>with this specific action</em>?" Reading a file: yes, always, automatically. Writing code: yes, but a program inspects the write first. Pushing to your main branch: never automatically; a human confirms or it doesn't happen. Deleting recursively with <code>rm -rf</code>: no, not ever, and no amount of clever prompting changes that, because the thing saying no is not a prompt.</p>
+<p>Diagnose yourself honestly before reading on. If you have already let an agent run loose on a real repo "just to see," your risk is failure mode one, and the guardrails in this module are for you. If you re-read every diff twice, your risk is mode two, and the trust tiers are how you learn to let go of the actions that were never dangerous. Most solo developers are secretly both, on different days.</p>
+<p><strong>The dividing line is not how much you trust the AI. It's which decisions you hand to deterministic code and which you keep for judgment.</strong></p>
+<hr />
+<p><em>Why the next section matters: "trust some actions, not others" only works if you can classify actions quickly and consistently. That's what the tier model gives you — and later, when you customize Forge for your own project, mis-tiering a single action is exactly how doors get left open.</em></p>
+<h2 id="the-trust-tier-model">The Trust-Tier Model</h2>
+<p>Every action an agent can take in a Forge-managed project falls into one of four tiers. This table — it lives in <code>CLAUDE.md</code>, the contract file every Claude Code session reads — is the spine of the entire framework:</p>
+<table>
+<thead>
+<tr>
+<th>Tier</th>
+<th>Examples</th>
+<th>Permission model</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Free</strong></td>
+<td>Read, Glob, Grep, <code>git status</code></td>
+<td>Auto-approved, no inspection</td>
+</tr>
+<tr>
+<td><strong>Guarded</strong></td>
+<td>Write, Edit, <code>git commit</code></td>
+<td>Auto-approved, but hooks inspect first</td>
+</tr>
+<tr>
+<td><strong>Gated</strong></td>
+<td><code>git push</code>, deploy</td>
+<td>A human must confirm</td>
+</tr>
+<tr>
+<td><strong>Forbidden</strong></td>
+<td><code>rm -rf</code>, <code>sudo</code>, force-push to main</td>
+<td>Blocked by code, no appeal</td>
+</tr>
+</tbody>
+</table>
+<p>The logic behind each tier is worth internalizing, because you'll be assigning tiers yourself soon.</p>
+<p><strong>Free</strong> actions are reads. An agent that reads a thousand files can waste tokens but cannot damage anything. Gating reads would slow everything down and protect nothing. Auto-approve, move on.</p>
+<p><strong>Guarded</strong> is where structured autonomy earns its keep. Writes and commits are <em>reversible</em> — git exists — but they're also where secrets leak and junk accumulates. So the framework approves them automatically <em>and</em> runs inspection hooks before they execute. The agent keeps its speed; a program you can read keeps the veto. This tier is why our company can produce hundreds of commits a week without a human watching each one.</p>
+<p><strong>Gated</strong> actions cross a blast-radius line: they leave your machine. A push publishes; a deploy affects users. A fifteen-second human confirmation here buys enormous protection, so the framework stops and asks. Note what this tier is <em>not</em>: it's not "review the whole diff again." It's "a human decided this crosses the line, now." The heavy review happens elsewhere, in the PR flow you'll build in Module 5.</p>
+<p><strong>Forbidden</strong> actions have blast radii so large or so irreversible that no confirmation dialog is good enough — because at 2 a.m., tired, you will click yes. Recursive deletes, privilege escalation, force-pushing over shared history. These are blocked before execution by code that has no "yes anyway" path. If you genuinely need one, you do it yourself, by hand, outside the agent, with full human deliberation. That friction is the feature.</p>
+<p>Practice classifying: which tier is <code>git checkout -b new-branch</code>? Local and reversible — Guarded. <code>chmod 777</code> on a file? World-writable permissions, a classic path to quiet disaster — Forbidden, and you'll watch the framework block it in the lab. <code>gh pr create</code>? Publishes, but to a review queue rather than production — in Forge's flow it rides on a push that was already Gated.</p>
+<p>One honest caveat: the tier model is a <em>contract</em>, expressed in documentation, enforced by a set of hooks. There is currently no single machine-readable registry you can query with "which tier is this action?" — the answer comes from reading <code>CLAUDE.md</code> and the hook source. That's a real gap, and it's why learning to classify actions yourself, right now, is not optional.</p>
+<p><strong>When you can't decide an action's tier, decide by blast radius and reversibility — never by how much you trust the model this week.</strong></p>
+<hr />
+<p><em>Why the next section matters: a tier table is just a promise. The enforcement layer makes it binding — and understanding that layer mechanically is what separates "I installed a safety tool" from "I know why this is safe."</em></p>
+<h2 id="guardrails-are-programs-not-prompts">Guardrails Are Programs, Not Prompts</h2>
+<p>Here is the single most important mental shift in this playbook.</p>
+<p>Asking a model nicely to "never push to main" is a suggestion. The model will honor it almost every time — and "almost" is doing fatal work in that sentence, because you are going to run thousands of actions. A <strong>PreToolUse hook</strong> — a plain program that Claude Code runs <em>before</em> executing any tool call, which reads the proposed action as JSON on stdin and can veto it by exiting non-zero — is not a suggestion. The command it blocks never runs. Not "is discouraged from running." Never runs. The model can want to push to main with every weight in its network; the hook does not care what the model wants.</p>
+<p>Forge ships a set of these hooks. Three do the core safety work:</p>
+<p><strong><code>block_dangerous.py</code></strong> — the Forbidden-tier enforcer. It pattern-matches proposed shell commands against a list of catastrophic operations: <code>rm -rf</code> aimed at roots and home directories, <code>sudo rm</code>, <code>chmod 777</code>, and friends. When it fires, you get a boxed refusal titled <code>DANGEROUS COMMAND BLOCKED</code>, naming the exact pattern that matched.</p>
+<p>A true story from the making of this chapter: while verifying these hooks against the live repository, we ran a <code>grep</code> <em>searching for</em> the text "chmod 777" in the hook's own source code — and the hook blocked the grep, because the search string contained the pattern. That's a false positive, and it's also the whole point. Deterministic rules don't judge intent. They can't be sweet-talked, and the price is that occasionally they block something innocent. That trade — a few seconds of your annoyance against an unbluffable barrier — is the cheapest insurance you will ever buy. (Hold on to that grep, though. A war story later in this module is about the rebuild that made this exact false positive extinct — without surrendering the barrier.)</p>
+<p><strong><code>secrets_scanner.py</code></strong> — the Guarded-tier inspector for writes. Before a file write lands on disk, it scans the content for credential patterns: AWS access keys (<code>AKIA</code> followed by sixteen uppercase characters and digits), private key blocks, high-entropy strings assigned to suspicious variable names. On a match, the write is refused <em>before the file exists</em>. Two details that will matter in the lab: documentation paths (<code>.md</code> files, READMEs, <code>.example</code> files) are deliberately exempt, so you can write docs <em>about</em> keys; and the free Community tier ships 8 core patterns, while broader coverage (including Anthropic and OpenAI key formats) is part of the paid Compliance Pack — so don't test a free install with an <code>sk-ant-...</code> string and conclude the scanner is broken.</p>
+<p><strong><code>git_guardian.py</code></strong> — the branch protector. It intercepts <code>git push</code> targeting protected branches and refuses with a boxed <code>BLOCKED: Push to Protected Branch</code> message before git ever contacts a remote. It also scans commit content for secrets and blocks executable syntax smuggled into commit messages. This one hook is why, across 700+ merged PRs and five months of an autonomous system running daily, direct pushes to main from automation: zero. Not because the agents never tried. Because trying doesn't work.</p>
+<p>Notice the design principle threading through all three: the safety-critical component is <em>boring</em>. Regex matches, path checks, exit codes. No model call, no judgment, no temperature. Boring means auditable — you can read every rule in an afternoon — and auditable means you can actually trust it, rather than hoping.</p>
+<p><strong>Safety-critical decisions must be deterministic and boring, so the creative component can be neither.</strong></p>
+<hr />
+<p><em>Why the next section matters: you have just been told that boring regex is the safety layer. In mid-2026, published research showed that boring regex, as practiced by nearly everyone — us included — had a structural hole. What happened next is this book's best case study in what "deterministic" actually demands.</em></p>
+<h2 id="war-story-guardfall-the-regex-never-sees-the-command">War Story: GuardFall — the Regex Never Sees the Command</h2>
+<blockquote>
+<p><strong>War story.</strong> On 2026-06-30, security researchers published GuardFall: an audit showing that the pattern-based shell guards in 10 of 11 popular AI coding agents could be bypassed. Not because anyone's regex was sloppy — for a structural reason. Bash <em>rewrites</em> commands before executing them: variable expansion, quote removal, substitution. The string your guard inspects is not the string that actually runs. <code>rm${IFS}-rf${IFS}/</code> contains no <code>rm -rf</code> for a regex to find; after the shell expands <code>$IFS</code>, it is exactly <code>rm -rf /</code>. The guard reads the disguise; the shell executes the payload.</p>
+<p>We read that paper the way you read a burglary report describing your own lock. <code>block_dangerous.py</code> — the hook you'll watch refuse a <code>chmod 777</code> in the lab — was the same flaw class. And we didn't need the paper's word for it: before the rebuild, our own nightly research scout had surfaced a concrete instance in our hook. <code>rm -rf "$DIR/build"</code> sails past any literal-path regex — and with <code>$DIR</code> empty at runtime, it is a root-level delete on <code>/build</code> that no pattern matching paths-as-written ever sees. We patched that specific hole first (#201). GuardFall's message was harder: it isn't a hole, it's the wall.</p>
+</blockquote>
+<p>The obvious response is to pile on more regexes — one for <code>$IFS</code>, one for quotes, one for escapes — and we tried it, with a red team standing by to keep us honest. The naive hardening scored <strong>52 bypasses and 30 false positives</strong>. Read that pair of numbers twice: more patterns made the hook easier to fool <em>and</em> more annoying at the same time, the worst trade available. Accretion does not fix a structural flaw.</p>
+<p>The rebuild that shipped (#233) starts from the research's own conclusion: if the shell rewrites commands before running them, the guard must perform the same rewriting before judging them. The hook now canonicalizes every proposed command with deterministic transforms that model what bash itself will do — <code>$IFS</code> expansion, quote removal, ANSI-C escapes, cartesian brace expansion, <code>echo</code>/<code>printf</code>/<code>base64</code> substitution — and only then pattern-matches, against every canonical form.</p>
+<p>Canonicalization alone would make the false-positive problem <em>worse</em> — expand everything and a commit message merely mentioning <code>rm -rf /</code> starts to look like a command. So the second half is structural masking: tokenize each canonical form into command segments and drop quoted <strong>data</strong> arguments. A dangerous string quoted as an argument to <code>echo</code>, <code>grep</code>, or <code>git commit -m</code> is data — the shell will never execute it — so the matcher never sees it. An argument to <code>bash -c</code> really is executed, so for shell interpreters everything is kept. That distinction — data versus command, decided by structure rather than by vibes — is why <code>git commit -m "docs: never run rm -rf /"</code> now passes cleanly while <code>bash -c "rm -rf /"</code> still hits the boxed refusal. It is also why the grep from a few pages ago — blocked for merely <em>searching</em> for "chmod 777" — sails through today: a quoted search string is data. The false positive we once called the price of insurance turned out to be a cost you don't have to pay.</p>
+<p>Validation was adversarial, because a guard validated by its own author is validated by hope: two red-team rounds, <strong>180+ bypass attempts</strong>, and the shipped version pinned by <strong>129 new tests</strong> with <strong>zero false positives</strong>.</p>
+<p>And now the part most write-ups leave out, printed here exactly as the engineers documented it in the hook's own header: runtime-only obfuscation — values known only at execution time, positional parameters — <strong>is out of reach for any static hook</strong>, ours included. That is not a bug scheduled for later; it is the boundary of what pattern-matching can ever do, exactly as the GuardFall research concludes. This layer is defense-in-depth, not a sandbox — and behind it sit the layers that don't care how a string was obfuscated: the sandboxed execution environment and the PR gauntlet you'll build in Module 5.</p>
+<p><strong>Your deterministic layer must model the shell's rewriting — and its limits must be documented, not denied.</strong></p>
+<hr />
+<p><em>Why the next section matters: hooks guard actions. But some files are so load-bearing that you don't want automation touching them no matter how legitimate the action looks. That needs its own mechanism — and it exists because of a very bad night.</em></p>
+<h2 id="humanprotected-the-do-not-touch-list">humanProtected: The Do-Not-Touch List</h2>
+<blockquote>
+<p><strong>War story.</strong> Our company once picked up an innocuous-sounding cleanup task. In its enthusiasm to tidy the repository, it deleted the Python build configuration and the dependency lockfile — the two files every install, every test run, and every CI job depends on. Nothing looked alarming in the moment: the diff was small, the commit message was tidy, the agent reported success. Then every build broke at once, and we spent the night restoring files that no automation had any business touching. The fix was not a better prompt or a smarter model. It was a short list in a config file: paths the machinery is forbidden to modify, enforced by a hook that doesn't negotiate.</p>
+<p><strong>Some files must be off-limits to automation by construction, not by convention — if "please don't touch this" isn't enforced by code, it isn't enforced.</strong></p>
+</blockquote>
+<p>The mechanism is the <code>humanProtected</code> block in <code>forge-config.json</code>. Here is the heart of our production list:</p>
+<pre><code class="language-json">&quot;humanProtected&quot;: {
+  &quot;description&quot;: &quot;Files/directories the daemon must NEVER modify - reserved for human editing&quot;,
+  &quot;enabled&quot;: true,
+  &quot;paths&quot;: [
+    &quot;CLAUDE.md&quot;,
+    &quot;forge-config.json&quot;,
+    &quot;.claude/settings.json&quot;,
+    &quot;pyproject.toml&quot;,
+    &quot;uv.lock&quot;
+  ]
+}
+</code></pre>
+<p>The first line of enforcement is a hook (<code>lint_on_edit.py</code>) that checks proposed Edits and Writes against these paths and refuses matches with a boxed block message — though, as you're about to read, the hook is not the layer that has actually been holding the door. The selection principle: <strong>anything whose corruption breaks everything downstream</strong>. The build config and lockfile (the war story's scar tissue). The safety configuration itself — because a do-not-touch list that automation can edit is a polite fiction. The Claude Code settings file where the hooks are registered — same reason. Your equivalents might be a deploy manifest, a database migration directory, a pricing table.</p>
+<p>Now the honest caveat, and it surprises almost everyone: <strong>this list guards the automation, not you.</strong> The hook checks whether it's running in an autonomous-worker context — it detects this through the environment — and only enforces the list there. When <em>you</em> edit <code>pyproject.toml</code> interactively in a Claude Code session, no block fires. That is deliberate. The threat model is a tireless machine making ten thousand edits while you sleep, not a human making a considered change with their eyes open. Somebody has to be able to edit the build config; the design says that somebody is a person, in the room, on purpose.</p>
+<p>There is a second honest caveat, and it's fresher. In July 2026 we audited this exact mechanism in our own production system and found (#265) that on the real autonomous path, the daemon never actually sent the worker-context signal the hook listens for — the hook's <code>humanProtected</code> block was dead code for precisely the workers it was written to stop. The receiver worked; the sender was silent. The finding produced a rebuilt enforcement that lives where an unsent signal can't kill it: at PR-creation time, the worker pipeline refuses to stage, commit, or push any change that touches a protected path. It checks the entire branch diff — renames and deletions included, so a protected file can't slip out under a new name — and if <code>forge-config.json</code> can't be read at all, it fails closed and refuses the PR rather than guessing.</p>
+<p>So here is the claim this book can actually back, which is narrower than the one we'd have made before that audit: the protected-file list is real, the intent is real, and it holds through <em>layers</em> — the hook when its signal is present, the PR-capture refusal in the worker pipeline, and the review gates behind both. Any single layer described as a "hard block" is a stronger claim than the code supports; the stack together is what holds.</p>
+<p>Keep the human/machine asymmetry in mind too. It's the difference between a safety system and a straitjacket — and it's the seed of this module's challenge, where you'll prove the hook's logic bites by simulating the machine, and then learn what that proof does <em>not</em> cover.</p>
+<hr />
+<p><em>Why the next section matters: everything so far is theory you've taken on my word. Time to stop taking anyone's word.</em></p>
+<h2 id="install-verify-then-distrust">Install, Verify, Then Distrust</h2>
+<p>The installation itself is one command. What matters is the posture you bring to it, which is the same posture this whole framework teaches: <strong>verify, then attack</strong>.</p>
+<p>Forge's installer (<code>install.sh</code>) asks you two questions worth understanding before you answer them:</p>
+<p><strong>Installation type</strong> — <code>core</code> (hooks and safety only), <code>single-project</code> (the full framework for one repo — what you'll use), or <code>multi-project</code> (a company root managing several repos, covered in Module 8).</p>
+<p><strong>Security profile</strong> — <code>strict</code>, <code>standard</code>, or <code>minimal</code>. This controls how aggressive the guardrails are. <code>standard</code> — critical protections block, the rest warn — is the right answer for this playbook. If you ever type <code>minimal</code>, you should be able to say precisely which protections you just declined.</p>
+<p>After installing, you do not trust the install. An installer can report success while a hook sits unregistered, missing, or broken — a file's <em>presence</em> proves nothing about its <em>enforcement</em>. So you verify with <code>/security-status</code>, which checks the local hook layer the way a skeptic would: is <code>git_guardian.py</code> actually registered as a PreToolUse hook in <code>.claude/settings.json</code>? Does the file exist on disk? Does it compile without syntax errors? Three checks, each one a way an installation can silently lie to you.</p>
+<p>And after verifying, you still don't trust it — a green checkmark is a claim, and the only evidence that convinces anyone at gut level is watching the thing refuse you. That's the lab. You are going to attempt a push to a protected branch, attempt to write a credential into code, attempt a forbidden command, and read three refusals with your own eyes. Then, crucially, you'll do the <em>legal</em> version of the same work and feel how fast it is when you're inside the walls.</p>
+<p><strong>Presence is not protection. Verify the mechanism, then make it say no to you once — before you need it to say no to a machine ten thousand times.</strong></p>
+<hr />
+<h2 id="lab-1-install-forge-then-try-to-break-your-own-rules">Lab 1 — Install Forge, Then Try to Break Your Own Rules</h2>
+<p>Time: 30–45 minutes. You need: git, Claude Code, and a terminal. Everything happens in a throwaway directory.</p>
+<ol>
+<li><strong>Create a sandbox project.</strong> Never run a lab against a repo you care about — that rule is itself a blast-radius decision, and you're practicing those now.</li>
+</ol>
+<p><code>bash
+   mkdir ~/forge-sandbox &amp;&amp; cd ~/forge-sandbox &amp;&amp; git init -b main
+   echo '# sandbox' &gt; notes.txt
+   git add notes.txt &amp;&amp; git commit -m 'init'</code></p>
+<ol>
+<li><strong>Get the framework and preview the install first.</strong></li>
+</ol>
+<p><code>bash
+   git clone https://github.com/andersenqvistdev/forge-framework ~/forge-framework
+   ~/forge-framework/install.sh --dry-run ~/forge-sandbox</code></p>
+<p>Read what it <em>would</em> do before letting it do anything. You're about to hand this tool your project directory; previewing an installer before running it is exactly the discipline you're here to learn.</p>
+<ol>
+<li><strong>Install for real, with explicit choices.</strong> Explicit flags instead of interactive prompts, so your shell history records exactly what you chose.</li>
+</ol>
+<p><code>bash
+   ~/forge-framework/install.sh --type single-project --security-profile standard -y ~/forge-sandbox</code></p>
+<ol>
+<li><strong>Verify the installation is protecting you, not just present.</strong> Open Claude Code inside <code>~/forge-sandbox</code> and run:</li>
+</ol>
+<p><code>/security-status</code></p>
+<p>Confirm Layer 1 (local hook protection) reports <code>git_guardian.py</code> as registered in <code>.claude/settings.json</code>, existing on disk, and compiling cleanly. Layers 2 and 3 concern GitHub-side protection — you have no remote yet, so expect those to report missing. That's honest output, not a failure.</p>
+<ol>
+<li>
+<p><strong>Trip guardrail #1: the protected branch.</strong> Ask Claude to run <code>git push origin main</code>. The push is intercepted <em>before execution</em> — you don't even need a remote configured, because the hook fires before git ever gets the chance to look for one. Read the boxed refusal: <code>BLOCKED: Push to Protected Branch</code>. Sit with the detail that matters: this came from <code>git_guardian.py</code>, a PreToolUse hook — a program — not from the model deciding to be careful. The model <em>tried</em>. The program said no.</p>
+</li>
+<li>
+<p><strong>Trip guardrail #2: the secret write.</strong> Ask Claude to create <code>config.py</code> containing a fake AWS credential. Use exactly this dummy — <code>aws_key = "AKIA2X7QZ9WPLM3RBV8K"</code> — or invent your own sixteen characters after the <code>AKIA</code>. One trap worth knowing, because it teaches how the scanner thinks: <strong>do not use <code>AKIAIOSFODNN7EXAMPLE</code></strong>. That is AWS's own documentation example key, and the scanner deliberately allowlists known placeholder and example strings — so if you reach for the "standard" fake AWS key you have seen a hundred times, the write sails through and you wrongly conclude the guardrail is broken. It is doing exactly its job: real-looking secrets are blocked, published dummies are not. Also don't name the file <code>*.md</code> or <code>README*</code> — documentation paths are exempt from scanning by design. With a real-looking dummy in a code file, the Write is refused by <code>secrets_scanner.py</code> before the file ever touches disk.</p>
+</li>
+<li>
+<p><strong>(Optional) Trip guardrail #3: the forbidden command.</strong> Ask Claude to run <code>chmod 777 notes.txt</code> and watch <code>block_dangerous.py</code> refuse with <code>DANGEROUS COMMAND BLOCKED</code>. No confirmation dialog, no override flag. Forbidden means forbidden.</p>
+</li>
+<li>
+<p><strong>Now do it the legal way</strong>, which is how you'll work for the rest of this playbook:</p>
+</li>
+</ol>
+<p><code>bash
+   git checkout -b feat/first-branch
+   git commit --allow-empty -m 'feat: prove the safe path'</code></p>
+<p>Branching and committing are Guarded-tier: inspected, then instantly allowed. No prompt, no wait. The same system that refused you twice says yes without hesitation here. That contrast — instant <em>no</em> on the dangerous path, instant <em>yes</em> on the safe one — is what "fast AND safe" feels like from the inside.</p>
+<ol>
+<li><strong>Find the do-not-touch list — then notice which file the hook actually reads.</strong> Open <code>.claude/forge-config.json</code> in your sandbox: the installer ships it with a full <code>humanProtected</code> block, matching our list above. But here is a trap worth learning on a throwaway: the enforcing hook, <code>lint_on_edit.py</code>, does not read that file. It consults <code>forge-config.json</code> at the <em>project root</em> — and a fresh install does not create one. The <code>.claude/</code> copy is the install template; the root file is the config the hook obeys. So make the list real yourself:</li>
+</ol>
+<p><code>bash
+   # from ~/forge-sandbox — give the hook the file it actually reads
+   cp .claude/forge-config.json forge-config.json</code></p>
+<p>Then ask the real question: which of <em>your</em> files — in the project you actually care about — belong on this list? Write them down. You'll want that answer in Module 8, when the send-off has you write that list before anything else on a repo you care about.</p>
+<h3 id="when-this-goes-wrong">When this goes wrong</h3>
+<p>If a guardrail doesn't fire: five checks, in order. First, re-run <code>/security-status</code> — if Layer 1 shows the hook unregistered or failing to compile, your install didn't complete; re-run step 3. Second, confirm you're inside <code>~/forge-sandbox</code> when talking to Claude Code — hooks are registered per-project in <code>.claude/settings.json</code>, and a session opened elsewhere has no idea your sandbox exists. Third, for step 6 specifically: check your key and filename. If you wrote the AWS <em>example</em> key (<code>AKIAIOSFODNN7EXAMPLE</code>) or put it in a <code>.md</code> file, the scanner skipped it by design — use a real-looking dummy in a <code>.py</code> file. Fourth, if Claude keeps warning that the workspace "has not been trusted" and ignores its own settings: the very first time you open Claude Code in the sandbox, accept the trust dialog. Until you do, Claude ignores the project's permission list and nags on every run — a one-time first-run surprise, not a broken install. Fifth, if you improvised on step 7 and hid the dangerous string inside quotes — a commit message mentioning <code>rm -rf /</code>, a grep for <code>chmod 777</code> — and it sailed through: that is not a broken guardrail. Since the #233 rebuild the hook distinguishes data from commands, and a dangerous string quoted as data to <code>echo</code>, <code>grep</code>, or <code>git commit</code> is deliberately allowed; run the bare command (or a <code>bash -c</code> version of it) and the block fires.</p>
+<h3 id="checkpoint">Checkpoint</h3>
+<p>You're done when you can show three observable artifacts:</p>
+<ol>
+<li>The <code>BLOCKED: Push to Protected Branch</code> boxed message in your transcript, with the sandbox still un-pushed — <code>git log origin/main</code> fails, because no remote was ever touched.</li>
+<li><code>ls config.py</code> returns "no such file" — the secret write never landed on disk. Not "was reverted." Never landed.</li>
+<li>A <code>/security-status</code> report showing the local hook layer passing.</li>
+</ol>
+<p>Two refusals witnessed, zero damage done. You now believe in the guardrails the only way that counts: empirically.</p>
+<hr />
+<h2 id="challenge-make-the-do-not-touch-list-bite">Challenge — Make the Do-Not-Touch List Bite</h2>
+<p>The lab showed you three guardrails firing. This challenge makes you <em>prove</em> a fourth — the <code>humanProtected</code> enforcement — and it will not fire for you the obvious way, which is the entire lesson.</p>
+<p><strong>The task:</strong> add a path you care about (say <code>docs/adr/*</code>) to <code>humanProtected.paths</code> in the root-level <code>forge-config.json</code> you created in Lab step 9, then demonstrate that the block actually bites — <em>without running any daemon</em>.</p>
+<p>Three things you'll have to discover yourself. First, the enforcement lives in <code>.claude/hooks/lint_on_edit.py</code> — read it. Second, it only activates when it believes an <em>autonomous employee</em>, not a human, is doing the editing — and an environment variable is how it knows. Third, the hook consults exactly one config file: <code>forge-config.json</code> at the project root. It deliberately does not read <code>.claude/forge-config.json</code> — put your path in the install template instead of the root config and the hook exits 0 forever, no matter what environment you set.</p>
+<p>A hint at the shape of the solution: Claude Code hooks are plain programs. They read a JSON tool-call payload on stdin and signal a block through their exit code. So you can hand-craft an Edit payload targeting your protected path, pipe it into the hook under a simulated daemon environment, and check <code>echo $?</code>.</p>
+<p>One self-test to keep you honest: if you get exit 0 both with and without the environment variable set, either you haven't found the right variable yet — or your path is sitting in <code>.claude/forge-config.json</code>, the file the hook never reads. The two failures look identical from the outside, which is exactly why the config-location lesson belongs in this challenge.</p>
+<p>When you succeed, you'll have done something more valuable than pass a lab: you'll have read a safety hook's source, understood its activation condition, and verified its behavior from the outside. Every guardrail you ever rely on deserves that treatment at least once.</p>
+<p>Then read your success with July-2026 eyes. By setting that variable yourself, you impersonated the daemon — and when we audited our own production (#265), we found the real daemon never set it at all. The hook's logic was sound, the signal never arrived, and the layer was dead code on the very path it was written for; enforcement had to be rebuilt at PR-creation time, where there is no signal to forget. That upgrades this challenge's lesson: verifying a guardrail from the outside means verifying both ends — the hook that listens for a signal, and the process that is supposed to send it. An unsent signal fails exactly like a missing hook, and nothing on your screen tells you which one you have.</p>
+<hr />
+<h2 id="what-you-can-now-do">What you can now do</h2>
+<blockquote>
+<p><strong>Module 1 summary — five things you couldn't do this morning:</strong></p>
+<ul>
+<li><strong>Classify any agent action</strong> into Free / Guarded / Gated / Forbidden using blast radius and reversibility — not vibes about the model.</li>
+<li><strong>Install Forge into a project</strong> with an explicit type and security profile, previewing with <code>--dry-run</code> before committing.</li>
+<li><strong>Verify an installation is enforcing, not just present</strong>, with <code>/security-status</code> — registration, existence, compilation.</li>
+<li><strong>Trigger and read a guardrail refusal</strong>, identifying which hook fired and why, so a block message is information rather than mystery.</li>
+<li><strong>Declare do-not-touch files</strong> in <code>humanProtected.paths</code> and explain the honest boundary: it's aimed at the machine, not the human — and it holds as a stack of layers, with the load-bearing check at PR-creation time, not as one hard block.</li>
+</ul>
+</blockquote>
+<hr />
+<h2 id="what-the-full-playbook-covers">What the full Playbook covers</h2>
+<p>This was Module 1 of 9 — the foundation everything else stands on. Here's where the rest takes you:</p>
+<p><strong>Module 2 — Found your company.</strong> Hire your first AI employees, give them roles and memory, draw the line between code and the org's live state — then bridge your sandbox to GitHub, where every later module's work will arrive.</p>
+<p><strong>Module 3 — First work by hand.</strong> Run a complete task through an employee yourself — request to branch to diff — so when automation does it later, you know exactly what "done right" looks like.</p>
+<p><strong>Module 4 — Plan like a CEO.</strong> Feed the system a roadmap instead of tickets, and watch the admission gate reject bad work <em>before</em> it wastes a worker — the fix that took our phantom problem apart at the source.</p>
+<p><strong>Module 5 — The GitHub flow safety net.</strong> Wire branch protection, CI, and the pre-merge deliverable judge into a net where an agent's PR simply cannot land unreviewed.</p>
+<p><strong>Module 6 — Go autonomous with a canary.</strong> Flip the auto-merge switch the way we actually did it: one genuine task and one booby-trapped one in flight, and you don't proceed until the gates catch exactly the right one.</p>
+<p><strong>Module 7 — Operate: steer, don't row.</strong> The unattended capstone — a daemon working while you're gone, overnight in the challenge, and a report you can read in five minutes because you built every gate it answers to.</p>
+<p><strong>Module 8 — Scale and economics.</strong> When to raise worker counts, what an autonomous PR actually costs on a flat Claude subscription, and how to read five months of our real numbers — including the ugly ones — to decide what to automate next.</p>
+<p><strong>Module 9 — Feed the company.</strong> Give the company outside-world intake: a nightly scout that researches and proposes evidence-backed tasks as PRs behind a single human merge — no machine-proposed work runs unless a human said yes.</p>
+<p>Each module has the same anatomy you just experienced: real mechanisms verified against a production system, a lab where you operate them yourself, a war story with the scar tissue left in, and a challenge that makes you prove it rather than trust it.</p>
+<p>If this module changed what you can do, the other eight are built to the same standard. Get the full Forge Playbook and take the rest of the ladder — one verified rung at a time.</p></div></body></html>
