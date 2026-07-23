@@ -90,6 +90,28 @@ test('ledger never stores the raw session id, only its sha256', async () => {
   assert.ok(!entry.body.includes('cs_test_paid_1'));
 });
 
+test('grant still succeeds and returns a download URL if the ledger write fails', async () => {
+  const failingBucket = {
+    async put() {
+      throw new Error('simulated R2 outage');
+    },
+    async get() {
+      return null;
+    },
+  };
+  const env = createTestEnv({
+    sessions: { cs_test_paid_1: paidSession() },
+    PLAYBOOK_BUCKET: failingBucket,
+  });
+  const res = await worker.fetch(
+    new Request('https://example.com/api/grant?session_id=cs_test_paid_1'),
+    env
+  );
+  assert.equal(res.status, 200, 'a paid, rate-limit-passing customer must not be 500ed by an R2 outage');
+  const body = await res.json();
+  assert.ok(body.url.startsWith('https://example.com/api/download?'));
+});
+
 test('unknown entitlement type is denied with 403', async () => {
   const env = createTestEnv({ sessions: {} });
   const res = await worker.fetch(

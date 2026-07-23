@@ -59,13 +59,23 @@ async function handleGrant(request, env) {
   // transaction (amount !== null) are recorded. A future non-revenue
   // entitlement type (e.g. membership) can return amount: null and simply
   // won't appear here; no change to this route is needed either way.
+  //
+  // Wrapped in try/catch: the customer has already been verified as paid
+  // and rate-limit-checked, so a transient R2 outage on the ledger write
+  // must not turn into a 500 that withholds their download. See
+  // docs/LEDGER.md "Ledger write failures don't block the download" for
+  // the accepted residual risk (a failed write here is not retried).
   if (rl.isFirstGrant && result.amount !== null) {
     const sessionIdSha256 = await sha256Hex(result.grantKey);
-    await appendSale(env, {
-      sessionIdSha256,
-      product: result.product,
-      amount: result.amount,
-    });
+    try {
+      await appendSale(env, {
+        sessionIdSha256,
+        product: result.product,
+        amount: result.amount,
+      });
+    } catch (err) {
+      console.error('ledger write failed', err);
+    }
   }
 
   const ttlSeconds = Number.parseInt(env.DOWNLOAD_TTL_SECONDS, 10) || undefined;

@@ -75,6 +75,24 @@ concern, the documented upgrade path is to move the grant counter into a
 Durable Object, which serializes access per session id and gives true
 exactly-once semantics for both the ledger and the rate limit.
 
+## Ledger write failures don't block the download
+
+`appendSale` runs after the sale is already decided (Stripe verified, rate
+limit passed) and is wrapped in its own try/catch in `worker/src/index.js`.
+A transient R2 outage on the `bucket.put` is logged (`console.error`) and
+swallowed rather than failing the whole `/api/grant` request — a customer
+who already paid and cleared verification always gets their download link,
+even if the ledger write itself fails.
+
+The trade-off: the grant counter (Workers KV, see above) is incremented
+*before* `appendSale` runs, so a client retry after a failed ledger write
+sees `isFirstGrant: false` and the write is not retried — that sale is then
+permanently absent from the ledger, with only the Worker log line as a
+record. This is accepted for the same reason as the KV race above: R2
+write failures are rare and transient, and the operator can reconcile
+against Stripe's own record of the session (by re-hashing a known session
+id) if a gap is ever suspected.
+
 ## Rate limiting (separate from the ledger)
 
 Every grant request — first or repeat — increments a KV counter keyed by
