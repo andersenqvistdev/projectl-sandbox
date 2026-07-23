@@ -1,0 +1,48 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Page checks
+        run: |
+          if [ -f scripts/check_page.sh ]; then
+            bash scripts/check_page.sh
+          elif [ -f scripts/check_page.py ]; then
+            python3 scripts/check_page.py
+          else
+            echo "no page checks yet (storefront not built)"
+          fi
+      - name: Worker tests
+        run: |
+          if [ -f worker/package.json ]; then
+            cd worker
+            npm ci --no-audit --no-fund
+            npm test
+          else
+            echo "no worker tests yet (worker not built)"
+          fi
+      - name: Paid-artifact guard
+        run: |
+          # The paid book must never enter this public repo. Sample files in
+          # assets/ are the only permitted book artifacts.
+          BAD=$(git ls-files | grep -iE 'playbook-(full|complete)' || true)
+          if [ -n "$BAD" ]; then
+            echo "FORBIDDEN paid artifacts tracked: $BAD"; exit 1
+          fi
+          echo "no paid artifacts tracked"
