@@ -1,0 +1,36 @@
+name = "forge-playbook-gate"
+main = "src/index.js"
+compatibility_date = "2026-01-01"
+
+# --- Deploy-time configuration (operator-supplied) ---
+#
+# Secrets — set with `wrangler secret put <NAME>`, never committed:
+#   STRIPE_SECRET_KEY   Stripe API secret key (sk_live_... / sk_test_...)
+#   SIGNING_SECRET       random high-entropy string for HMAC download tokens
+#
+# Vars below are placeholders; the operator fills in real values at deploy
+# time via `wrangler.toml` overrides or `wrangler deploy --var`.
+
+[vars]
+MAX_GRANTS_PER_SESSION = "5"
+# Signed download URL lifetime, in seconds. Hard-capped at 24h regardless of
+# this value (see src/signing.js). Short by default since a leaked grant URL
+# (browser history, referrer, logs) is a bearer credential until it expires.
+DOWNLOAD_TTL_SECONDS = "900"
+# This storefront currently sells exactly one product. See the product-
+# resolution note in src/stripe.js before adding a second one.
+DEFAULT_PRODUCT = "forge-playbook"
+# JSON map of product slug -> R2 object key for the private artifact.
+ARTIFACT_KEYS = "{\"forge-playbook\":\"artifacts/forge-playbook.epub\"}"
+
+# R2 bucket holding both the private artifacts (artifacts/ prefix) and the
+# sales ledger (ledger/ prefix). bucket_name is deploy-time config — replace
+# the placeholder before deploying.
+[[r2_buckets]]
+binding = "PLAYBOOK_BUCKET"
+bucket_name = "REPLACE_WITH_R2_BUCKET_NAME"
+
+# KV namespace used for the replay/rate-limit grant counter.
+[[kv_namespaces]]
+binding = "GRANTS_KV"
+id = "REPLACE_WITH_KV_NAMESPACE_ID"
