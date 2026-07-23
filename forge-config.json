@@ -728,5 +728,9 @@
   },
   "adaptiveScheduler": {
     "maxParallelWorkers": 2
+  },
+  "cascade": {
+    "description": "ProjectL: brief-driven sandbox \u2014 disable goal autofill (explicit briefs cover all goals; autofill only churns duplicates)",
+    "queueLowThreshold": 0
   }
 }
