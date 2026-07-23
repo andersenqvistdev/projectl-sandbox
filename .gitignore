@@ -43,3 +43,5 @@ dist/
 
 # Live employee state — never track (accumulating memory dirties the tree and blocks daemon self-update)
 .company/employees/
+
+.DS_Store
