@@ -65,11 +65,39 @@ def test_sample_links_reference_existing_assets():
         assert asset_path.exists(), f"expected sample asset missing: {asset_path}"
 
 
+def test_hero_cover_is_constrained_to_its_grid_column():
+    html = _read(INDEX_HTML)
+    breakpoint_match = re.search(
+        r"@media\s*\(min-width:\s*768px\)\s*\{(.*)\}\s*</style>", html, re.DOTALL
+    )
+    assert breakpoint_match, (
+        "site/index.html must contain a min-width: 768px breakpoint block"
+    )
+    breakpoint_css = breakpoint_match.group(1)
+
+    hero_cover_match = re.search(r"\.hero-cover\s*\{([^}]*)\}", breakpoint_css)
+    assert hero_cover_match, (
+        "the min-width: 768px breakpoint must contain a .hero-cover rule"
+    )
+    hero_cover_rule = hero_cover_match.group(1)
+
+    assert "max-width: none" not in hero_cover_rule, (
+        "the responsive .hero-cover rule must not set max-width: none - that "
+        "overrides the base img max-width: 100% rule and lets cover.png "
+        "overflow its grid column, overlapping the hero text"
+    )
+    assert "width: 100%" in hero_cover_rule, (
+        "the responsive .hero-cover rule must set width: 100% so the cover "
+        "image fills its grid column instead of exceeding it"
+    )
+
+
 ALL_TESTS = (
     test_price_is_displayed,
     test_no_hardcoded_payment_url_and_config_is_wired,
     test_config_has_todo_operator_placeholder,
     test_sample_links_reference_existing_assets,
+    test_hero_cover_is_constrained_to_its_grid_column,
 )
 
 
