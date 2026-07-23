@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>The Forge Playbook — Build an Autonomous AI Dev Company</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="A hands-on playbook for running a software team with structured autonomy: agent orchestration, daemon operations, trust tiers, and safe autonomous deploys.">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Hanken+Grotesk:wght@400;600;700&family=JetBrains+Mono&display=swap" rel="stylesheet">
+
+<style>
+  :root {
+    --charred: #0b0705;
+    --ember: #ff6a1a;
+    --deep-ember: #c2440a;
+    --amber: #ffb347;
+    --paper: #faf7f4;
+
+    --font-display: 'Anton', 'Arial Narrow', sans-serif;
+    --font-body: 'Hanken Grotesk', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    --font-mono: 'JetBrains Mono', ui-monospace, 'SF Mono', Menlo, monospace;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; }
+
+  html { color-scheme: dark; }
+
+  body {
+    margin: 0;
+    background-color: var(--charred);
+    color: var(--paper);
+    font-family: var(--font-body);
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  img { max-width: 100%; display: block; }
+
+  a { color: var(--amber); }
+
+  .wrap {
+    width: 100%;
+    max-width: 72rem;
+    margin-inline: auto;
+    padding-inline: clamp(1.25rem, 4vw, 3rem);
+  }
+
+  /* ---------- Header rule ---------- */
+  .brand-rule {
+    height: 0.25rem;
+    background: linear-gradient(90deg, var(--deep-ember), var(--ember), var(--amber));
+  }
+
+  /* ---------- Hero ---------- */
+  .hero {
+    padding-block: clamp(2.5rem, 8vw, 5rem);
+  }
+
+  .hero-grid {
+    display: grid;
+    gap: clamp(2rem, 6vw, 3rem);
+    align-items: center;
+  }
+
+  .hero-cover {
+    border: 1px solid rgba(255, 179, 71, 0.25);
+    box-shadow: 0 1.5rem 3rem rgba(0, 0, 0, 0.55);
+    border-radius: 0.25rem;
+    margin-inline: auto;
+    max-width: 20rem;
+  }
+
+  .eyebrow {
+    font-family: var(--font-mono);
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--ember);
+    font-size: clamp(0.75rem, 1.5vw, 0.875rem);
+    margin: 0 0 1rem;
+  }
+
+  h1 {
+    font-family: var(--font-display);
+    font-weight: 400;
+    text-transform: uppercase;
+    letter-spacing: 0.01em;
+    font-size: clamp(2.25rem, 6vw, 4rem);
+    line-height: 1.05;
+    margin: 0 0 1.25rem;
+    color: var(--paper);
+  }
+
+  h1 span {
+    color: var(--ember);
+  }
+
+  .pitch {
+    font-size: clamp(1.05rem, 2vw, 1.35rem);
+    color: var(--amber);
+    max-width: 34rem;
+    margin: 0;
+  }
+
+  /* ---------- Sections ---------- */
+  section {
+    padding-block: clamp(2.5rem, 6vw, 4rem);
+    border-top: 1px solid rgba(255, 179, 71, 0.12);
+  }
+
+  h2 {
+    font-family: var(--font-display);
+    font-weight: 400;
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+    font-size: clamp(1.5rem, 3.5vw, 2.25rem);
+    color: var(--paper);
+    margin: 0 0 1.75rem;
+  }
+
+  h2 em {
+    font-style: normal;
+    color: var(--ember);
+  }
+
+  /* ---------- What you get ---------- */
+  .benefits {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: 1.25rem;
+  }
+
+  .benefits li {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 1rem;
+    align-items: start;
+    padding: 1.25rem clamp(1rem, 3vw, 1.5rem);
+    background: rgba(255, 106, 26, 0.06);
+    border: 1px solid rgba(255, 106, 26, 0.18);
+    border-radius: 0.25rem;
+  }
+
+  .benefits .mark {
+    font-family: var(--font-mono);
+    color: var(--ember);
+    font-weight: 700;
+  }
+
+  .benefits strong {
+    color: var(--amber);
+    display: block;
+    margin-bottom: 0.15rem;
+    font-size: 1.05rem;
+  }
+
+  .benefits p {
+    margin: 0;
+    color: var(--paper);
+    opacity: 0.9;
+  }
+
+  /* ---------- Pricing ---------- */
+  .pricing-card {
+    background: linear-gradient(160deg, rgba(255, 106, 26, 0.14), rgba(11, 7, 5, 0));
+    border: 1px solid rgba(255, 106, 26, 0.3);
+    border-radius: 0.5rem;
+    padding: clamp(1.75rem, 5vw, 3rem);
+    text-align: center;
+  }
+
+  .price {
+    font-family: var(--font-display);
+    font-size: clamp(3rem, 10vw, 5rem);
+    color: var(--paper);
+    line-height: 1;
+    margin: 0.5rem 0;
+  }
+
+  .price sup {
+    font-size: 0.4em;
+    color: var(--amber);
+    top: -1.5em;
+  }
+
+  .price-note {
+    font-family: var(--font-mono);
+    color: var(--amber);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    font-size: 0.85rem;
+    margin: 0 0 1.75rem;
+  }
+
+  .btn-buy {
+    display: inline-block;
+    font-family: var(--font-body);
+    font-weight: 700;
+    font-size: clamp(1rem, 2vw, 1.15rem);
+    color: var(--charred);
+    background: linear-gradient(90deg, var(--amber), var(--ember));
+    padding: 1rem 2.25rem;
+    border-radius: 0.25rem;
+    text-decoration: none;
+    box-shadow: 0 0.75rem 1.75rem rgba(255, 106, 26, 0.3);
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+  }
+
+  .btn-buy:hover {
+    transform: translateY(-0.1rem);
+    box-shadow: 0 1rem 2rem rgba(255, 106, 26, 0.4);
+  }
+
+  .pricing-fine {
+    font-size: 0.85rem;
+    color: var(--paper);
+    opacity: 0.6;
+    margin-top: 1.5rem;
+  }
+
+  /* ---------- Samples ---------- */
+  .samples-grid {
+    display: grid;
+    gap: 1.25rem;
+  }
+
+  .sample-card {
+    display: block;
+    text-decoration: none;
+    background: rgba(250, 247, 244, 0.04);
+    border: 1px solid rgba(255, 179, 71, 0.2);
+    border-radius: 0.25rem;
+    padding: 1.5rem;
+    transition: border-color 0.15s ease, background 0.15s ease;
+  }
+
+  .sample-card:hover {
+    border-color: var(--ember);
+    background: rgba(255, 106, 26, 0.08);
+  }
+
+  .sample-format {
+    font-family: var(--font-mono);
+    color: var(--ember);
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    font-size: 1.1rem;
+    display: block;
+    margin-bottom: 0.4rem;
+  }
+
+  .sample-desc {
+    color: var(--paper);
+    opacity: 0.85;
+    font-size: 0.95rem;
+  }
+
+  .samples-lede {
+    color: var(--amber);
+    margin: -1rem 0 1.75rem;
+  }
+
+  /* ---------- Footer ---------- */
+  footer {
+    border-top: 1px solid rgba(255, 179, 71, 0.12);
+    padding-block: 2.5rem;
+    text-align: center;
+    font-family: var(--font-mono);
+    font-size: 0.85rem;
+    color: var(--paper);
+    opacity: 0.7;
+  }
+
+  footer a {
+    color: var(--amber);
+    text-decoration: none;
+  }
+
+  footer a:hover { text-decoration: underline; }
+
+  /* ---------- Breakpoint ---------- */
+  @media (min-width: 768px) {
+    .hero-grid {
+      grid-template-columns: minmax(16rem, 22rem) 1fr;
+    }
+
+    .hero-cover {
+      margin-inline: 0;
+      max-width: none;
+    }
+
+    .benefits {
+      grid-template-columns: repeat(2, 1fr);
+    }
+
+    .samples-grid {
+      grid-template-columns: repeat(3, 1fr);
+    }
+  }
+</style>
+</head>
+<body>
+
+<div class="brand-rule"></div>
+
+<main>
+  <section class="hero">
+    <div class="wrap hero-grid">
+      <img class="hero-cover" src="../assets/cover.png" alt="Forge Playbook cover">
+      <div>
+        <p class="eyebrow">Forge Framework // Field Manual</p>
+        <h1>The <span>Forge</span> Playbook</h1>
+        <p class="pitch">Run a software company at machine speed without losing the humans who steer it.</p>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="wrap">
+      <h2>What you <em>get</em></h2>
+      <ul class="benefits">
+        <li>
+          <span class="mark">01</span>
+          <div><strong>Structured autonomy</strong><p>The operating philosophy behind letting agents run fast without losing control of the outcome.</p></div>
+        </li>
+        <li>
+          <span class="mark">02</span>
+          <div><strong>Agent orchestration</strong><p>How to compose specialized agents into a working team instead of one overloaded generalist.</p></div>
+        </li>
+        <li>
+          <span class="mark">03</span>
+          <div><strong>Daemon operations</strong><p>Running a background process loop that picks up work, retries failures, and reports honestly.</p></div>
+        </li>
+        <li>
+          <span class="mark">04</span>
+          <div><strong>Trust tiers</strong><p>A permission model for what agents can do unattended, what needs a human nod, and what's forbidden outright.</p></div>
+        </li>
+        <li>
+          <span class="mark">05</span>
+          <div><strong>Deploying AI teams safely</strong><p>Guardrails, rollback plans, and escalation paths for putting autonomous work in front of real users.</p></div>
+        </li>
+      </ul>
+    </div>
+  </section>
+
+  <section>
+    <div class="wrap">
+      <h2>Get the <em>Playbook</em></h2>
+      <div class="pricing-card">
+        <p class="price-note">One-time purchase &middot; lifetime access</p>
+        <p class="price">$79</p>
+        <p>
+          <a id="buy-button" href="#" class="btn-buy">Get the Playbook &mdash; $79</a>
+        </p>
+        <p class="pricing-fine">Instant access after checkout. No subscription.</p>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="wrap">
+      <h2>Free <em>samples</em></h2>
+      <p class="samples-lede">Read a real excerpt before you buy &mdash; no signup required.</p>
+      <div class="samples-grid">
+        <a class="sample-card" href="../assets/forge-playbook-sample.pdf">
+          <span class="sample-format">PDF</span>
+          <span class="sample-desc">Print-ready sample chapter, formatted for reading offline.</span>
+        </a>
+        <a class="sample-card" href="../assets/forge-playbook-sample.epub">
+          <span class="sample-format">EPUB</span>
+          <span class="sample-desc">Sample chapter for e-readers and reading apps.</span>
+        </a>
+        <a class="sample-card" href="../assets/forge-playbook-sample.html">
+          <span class="sample-format">HTML</span>
+          <span class="sample-desc">Read the sample chapter directly in your browser.</span>
+        </a>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <a href="https://forgeframework.dev">forgeframework.dev</a>
+  </div>
+</footer>
+
+<script src="config.js"></script>
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    document.getElementById('buy-button').href = window.FORGE_CONFIG.paymentLinkUrl;
+  });
+</script>
+
+</body>
+</html>
