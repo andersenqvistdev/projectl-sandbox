@@ -30,6 +30,9 @@ CLAUDE.local.md
 .planning/STATE.md
 .planning/COMPANY_STATE.md
 
+# Node
+node_modules/
+
 # Python
 __pycache__/
 *.pyc

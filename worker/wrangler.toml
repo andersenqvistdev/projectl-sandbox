@@ -20,7 +20,9 @@ DOWNLOAD_TTL_SECONDS = "900"
 # This storefront currently sells exactly one product. See the product-
 # resolution note in src/stripe.js before adding a second one.
 DEFAULT_PRODUCT = "forge-playbook"
-# JSON map of product slug -> R2 object key for the private artifact.
+# JSON map of product slug -> R2 object key for the private artifact. The
+# key's file extension (.pdf / .epub / .html) selects which watermark
+# stamper src/watermark.js runs at download time — see docs/DEPLOY.md.
 ARTIFACT_KEYS = "{\"forge-playbook\":\"artifacts/forge-playbook.epub\"}"
 
 # R2 bucket holding both the private artifacts (artifacts/ prefix) and the
@@ -30,7 +32,9 @@ ARTIFACT_KEYS = "{\"forge-playbook\":\"artifacts/forge-playbook.epub\"}"
 binding = "PLAYBOOK_BUCKET"
 bucket_name = "REPLACE_WITH_R2_BUCKET_NAME"
 
-# KV namespace used for the replay/rate-limit grant counter.
+# KV namespace used for the replay/rate-limit grant counter AND (as of
+# per-buyer watermarking) per-order watermark metadata — see
+# src/watermarkStore.js. No second namespace needed.
 [[kv_namespaces]]
 binding = "GRANTS_KV"
 id = "REPLACE_WITH_KV_NAMESPACE_ID"

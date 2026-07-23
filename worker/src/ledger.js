@@ -6,6 +6,8 @@
  * prefix, in key order, to reconstitute the full JSONL file).
  */
 
+import { shortOrderId } from './orderId.js';
+
 function pad(n, width) {
   return String(n).padStart(width, '0');
 }
@@ -13,7 +15,7 @@ function pad(n, width) {
 function ledgerObjectKey(timestamp, sessionIdSha256) {
   const d = new Date(timestamp);
   const datePrefix = `${d.getUTCFullYear()}/${pad(d.getUTCMonth() + 1, 2)}/${pad(d.getUTCDate(), 2)}`;
-  return `ledger/${datePrefix}/${timestamp}-${sessionIdSha256.slice(0, 16)}.jsonl`;
+  return `ledger/${datePrefix}/${timestamp}-${shortOrderId(sessionIdSha256)}.jsonl`;
 }
 
 export async function appendSale(env, { sessionIdSha256, product, amount, timestamp = Date.now() }) {

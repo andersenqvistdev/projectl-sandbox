@@ -12,11 +12,17 @@ copy-pasted as-is (substitute the bracketed placeholders).
 - A Cloudflare Worker (`worker/`) that verifies a completed Stripe payment,
   hands back a short-lived signed download URL, and records the sale to an
   append-only ledger in R2. See `docs/LEDGER.md` for the ledger format.
+- **Per-buyer watermarking at delivery time.** The download URL doesn't
+  serve the artifact you uploaded — hitting it makes the Worker fetch that
+  artifact from private storage, stamp a fresh copy for that specific buyer
+  in memory, and stream the stamped copy back. The raw artifact is never
+  served to anyone, by any URL. See "What gets stamped" under step 3.
 
 **What is NOT in this repo, by design:** the paid book artifact itself. The
 public repo only ships free samples (`assets/forge-playbook-sample.*`). You
 supply the real, sellable file (e.g. from your own content pipeline's build
-output) directly to R2 in step 3 — it never touches source control.
+output) directly to R2 in step 3, **un-watermarked** — it never touches
+source control, and it's the Worker's job, not yours, to stamp it.
 
 ## Prerequisites
 
@@ -107,24 +113,55 @@ The Worker binds a single R2 bucket (`PLAYBOOK_BUCKET`) for **both** the
 private artifact and the sales ledger — see `worker/wrangler.toml`. There is
 no second bucket to create unless you choose to split them.
 
+**Upload the artifact un-watermarked.** The Worker stamps a fresh, per-buyer
+copy on every download — see "What gets stamped" below — so the file you
+put in R2 here should be the same finished export your content pipeline
+produces, with no watermark of your own baked in. If you pre-stamp it
+yourself, buyers get a double-stamped (or inconsistently stamped) copy.
+
 ```bash
 cd worker
 
 # 1. Create the bucket.
 npx wrangler r2 bucket create <YOUR_BUCKET_NAME>
 
-# 2. Upload the paid artifact. The key MUST match ARTIFACT_KEYS in
-#    wrangler.toml, which currently maps "forge-playbook" ->
-#    "artifacts/forge-playbook.epub". This file is not in this repo -
+# 2. Upload the paid artifact, un-watermarked. The key MUST match
+#    ARTIFACT_KEYS in wrangler.toml, which currently maps "forge-playbook"
+#    -> "artifacts/forge-playbook.epub". This file is not in this repo -
 #    supply it yourself (e.g. the finished export from your own content
-#    pipeline).
+#    pipeline). The key's extension (.pdf / .epub / .html) selects which
+#    stamper worker/src/watermark.js runs — see below.
 npx wrangler r2 object put <YOUR_BUCKET_NAME>/artifacts/forge-playbook.epub \
   --file=/path/to/your/forge-playbook.epub
 
-# 3. Create the KV namespace used for the replay/rate-limit grant counter.
+# 3. Create the KV namespace. Used for the replay/rate-limit grant counter
+#    AND (as of per-buyer watermarking) the buyer email/purchase date for
+#    each order id, looked up at download time — no second namespace needed.
 npx wrangler kv namespace create GRANTS_KV
 # Prints an "id" - copy it into wrangler.toml in the next step.
 ```
+
+**What gets stamped, and how, per format** (`worker/src/watermark.js`):
+
+| Format | Stamp mechanism |
+|--------|------------------|
+| PDF    | A small, low-opacity footer line added to every page via `pdf-lib` (`worker/package.json` dependency; `npm install` resolves it, no lockfile surgery needed). |
+| HTML   | A fixed footer banner injected before `</body>`. |
+| EPUB   | A colophon page added to the spine — the OPF manifest/spine and container are rewritten in memory (`fflate` unzip → edit → rezip) so the new page ships as part of the book, not just appended bytes. |
+
+Every stamp carries: the buyer's email from the Stripe checkout session
+(obfuscated as `name at domain.tld`, or the order id alone if no email was
+collected), the order id (the same sha256-of-session-id prefix `docs/LEDGER.md`
+uses for the ledger key — see `worker/src/orderId.js`), the purchase date,
+and the delivery date (both `YYYY-MM-DD`, UTC). This is a piracy deterrent,
+not DRM: the file isn't locked down, but a leaked copy is traceable back to
+the order that produced it.
+
+Because stamping means fetching, transforming, and re-serializing the whole
+artifact in Worker memory per download (rather than the old raw R2
+passthrough), keep artifact sizes reasonable relative to the Workers memory
+ceiling — this is fine for a normal ebook-sized PDF/EPUB, but isn't meant
+for arbitrarily large files.
 
 Edit `worker/wrangler.toml` (in your deploy checkout) and replace the two
 placeholders with real values from above:
@@ -230,8 +267,13 @@ real customer could reach the store.
    `.../api/grant?session_id=cs_...` and returns **HTTP 200** with a JSON
    body containing a `url` and `expires_at`.
 4. Open the `url` from step 3 directly. Confirm the file downloads
-   (`Content-Disposition: attachment`) and its bytes match what you
-   uploaded in step 3 of the deploy (not a stub/placeholder).
+   (`Content-Disposition: attachment`) and is a real, openable copy of what
+   you uploaded — **not** a byte-for-byte match, since the Worker stamps a
+   fresh per-buyer copy on every download (see step 3 of the deploy). Open
+   it and confirm the watermark is present and correct: a PDF footer line /
+   HTML footer banner / EPUB colophon showing your test buyer's email (or
+   the order id alone, if the test checkout didn't collect one), the order
+   id, and today's date as both purchased and delivered.
 5. **Verify the ledger record was written:** in the Cloudflare dashboard,
    open the R2 bucket from step 3 → browse the `ledger/` prefix → confirm a
    new object exists for this purchase (path shape:

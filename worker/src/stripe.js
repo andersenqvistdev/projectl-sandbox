@@ -8,6 +8,8 @@
  * network; production leaves it unset and the real global `fetch` is used.
  */
 
+import { formatDateUTC } from './dates.js';
+
 const STRIPE_API_BASE = 'https://api.stripe.com/v1';
 
 export async function fetchStripeCheckoutSession(sessionId, env) {
@@ -73,10 +75,23 @@ export async function verifyPurchase(request, env) {
     return { granted: false, reason: 'product mismatch', status: 403 };
   }
 
+  // customer_details.email is populated for the checkout's actual customer;
+  // customer_email is a lower-priority fallback (e.g. a pre-filled value
+  // that didn't get promoted to customer_details for some reason). Absent
+  // entirely for guest sessions where email collection was skipped — the
+  // watermark falls back to the order id alone in that case.
+  const buyerEmail = session.customer_details?.email || session.customer_email || null;
+  // `created` is when the Checkout Session was created, not necessarily the
+  // instant payment cleared, but for this single-item, pay-now flow the two
+  // are effectively the same day — treated here as the purchase date.
+  const purchaseDate = formatDateUTC(session.created);
+
   return {
     granted: true,
     grantKey: sessionId,
     product,
     amount: typeof session.amount_total === 'number' ? session.amount_total : null,
+    buyerEmail,
+    purchaseDate,
   };
 }

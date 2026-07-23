@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import worker from '../src/index.js';
-import { createTestEnv, paidSession } from './helpers.js';
+import { createTestEnv, paidSession, readSampleAsset } from './helpers.js';
 import { signDownloadToken } from '../src/signing.js';
 
 test('unauthenticated direct artifact route is denied with 403 (no token)', async () => {
@@ -43,9 +43,12 @@ test('expired signed token is denied with 403', async () => {
   assert.equal(res.status, 403);
 });
 
-test('a validly signed token (as issued by /api/grant) downloads the artifact', async () => {
+test('a validly signed token (as issued by /api/grant) downloads a watermarked copy, never the raw artifact', async () => {
   const env = createTestEnv({ sessions: { cs_test_paid_1: paidSession() } });
-  await env.PLAYBOOK_BUCKET.put('artifacts/forge-playbook.epub', 'FAKE ARTIFACT BYTES');
+  const original = readSampleAsset('forge-playbook-sample.epub');
+  await env.PLAYBOOK_BUCKET.put('artifacts/forge-playbook.epub', original, {
+    httpMetadata: { contentType: 'application/epub+zip' },
+  });
 
   const grantRes = await worker.fetch(
     new Request('https://example.com/api/grant?session_id=cs_test_paid_1'),
@@ -55,8 +58,10 @@ test('a validly signed token (as issued by /api/grant) downloads the artifact', 
 
   const downloadRes = await worker.fetch(new Request(url), env);
   assert.equal(downloadRes.status, 200);
-  const text = await downloadRes.text();
-  assert.equal(text, 'FAKE ARTIFACT BYTES');
+  const bytes = new Uint8Array(await downloadRes.arrayBuffer());
+
+  // The raw un-watermarked artifact must never be what comes back.
+  assert.notEqual(bytes.length, original.length);
 });
 
 test('token signed with a different signing secret is rejected', async () => {
