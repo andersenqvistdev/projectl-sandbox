@@ -1,0 +1,25 @@
+# Cloudflare Worker config for the entitlement gate.
+# Deploy-time values (KV namespace ids, R2 bucket, SIGNING_SECRET) are
+# operator-supplied — see docs/DEPLOY.md (G5). Nothing secret lives here.
+
+name = "forge-playbook-worker"
+main = "src/index.js"
+compatibility_date = "2026-07-23"
+
+# Maps entitlement tokens -> { type, productId, expiresAt, revoked }.
+# id is filled in by the operator at deploy time (`wrangler kv namespace create`).
+[[kv_namespaces]]
+binding = "ENTITLEMENTS"
+id = "TODO-OPERATOR"
+
+# SIGNING_SECRET is set via `wrangler secret put SIGNING_SECRET`, never
+# committed here.
+[vars]
+SIGNED_URL_TTL_SECONDS = "300"
+
+# Private object storage for the full book. Bound at deploy time; the gate
+# degrades to 501 (not 200-with-bytes) until this exists — see
+# src/router.js handleContent.
+# [[r2_buckets]]
+# binding = "CONTENT_STORE"
+# bucket_name = "TODO-OPERATOR"
