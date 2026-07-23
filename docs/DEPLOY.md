@@ -126,6 +126,13 @@ npx wrangler kv namespace create GRANTS_KV
 # Prints an "id" - copy it into wrangler.toml in the next step.
 ```
 
+`worker/wrangler.toml`'s `DEFAULT_PRODUCT` var (currently `"forge-playbook"`)
+is what a verified-paid session actually gets bound to — it must keep
+matching the slug key you used in `ARTIFACT_KEYS` above. You don't need to
+touch it for this single-product storefront as shipped, but if you ever
+rename the product slug, update both together (see the product-resolution
+note in `worker/src/stripe.js`).
+
 Edit `worker/wrangler.toml` (in your deploy checkout) and replace the two
 placeholders with real values from above:
 
@@ -144,8 +151,10 @@ Double-check both placeholders are actually replaced before you deploy —
 still the literal `REPLACE_WITH_...` placeholders.
 
 Set the two Worker secrets — never put these in `wrangler.toml` or any
-committed file (`worker/test/no-secrets.test.js` enforces there's no literal
-key material in `worker/src`):
+committed file (`worker/test/no-secrets.test.js` scans the top-level files
+in `worker/src` for literal key material; it does not recurse into
+`worker/src/watermark/`, so treat it as a backstop, not a substitute for not
+pasting real keys into source in the first place):
 
 ```bash
 # Your Stripe secret key (Dashboard -> Developers -> API keys). Use the
@@ -220,6 +229,18 @@ it afterward, and switch back to the `sk_live_...` key
 (`npx wrangler secret put STRIPE_SECRET_KEY`) as your last action before any
 real customer could reach the store.
 
+**This checklist is written for the first deploy, before the storefront has
+a live Payment Link wired in (step 2.5 hasn't happened yet).** If you ever
+re-run it later — e.g. to smoke-test a Worker code change against an
+already-live store — the same key swap means any real customer whose
+checkout redirect hits `/api/grant` while `STRIPE_SECRET_KEY` is set to a
+test key will be denied (fails closed, `worker/src/stripe.js`'s
+`fetchStripeCheckoutSession` gets a 404 from Stripe for a live session id
+under a test key, so `verifyPurchase` returns "unknown session"). That's not
+a security hole, but it is a real availability gap for that customer — pick
+a low-traffic window, or test against a separate non-production Worker
+deploy instead.
+
 1. Open the storefront page (with the test-mode Payment Link URL, e.g. by
    temporarily editing a local/preview copy of `config.js` — don't merge a
    test link into production) and click the buy button; confirm it lands on
@@ -230,8 +251,14 @@ real customer could reach the store.
    `.../api/grant?session_id=cs_...` and returns **HTTP 200** with a JSON
    body containing a `url` and `expires_at`.
 4. Open the `url` from step 3 directly. Confirm the file downloads
-   (`Content-Disposition: attachment`) and its bytes match what you
-   uploaded in step 3 of the deploy (not a stub/placeholder).
+   (`Content-Disposition: attachment`) and opens/renders as the real book
+   (not a stub/placeholder). **Do not expect a byte-for-byte match against
+   the file you uploaded in step 3** — every download is watermarked
+   on the fly (see "What happens at delivery time" below), so the bytes
+   always differ from the raw upload by design. Instead confirm the
+   watermark sentence is present in the file itself (e.g. a footer line
+   reading "Licensed to buyer at <your test email's domain>, order
+   `<8 hex chars>`, purchased `<date>`, delivered `<date>`").
 5. **Verify the ledger record was written:** in the Cloudflare dashboard,
    open the R2 bucket from step 3 → browse the `ledger/` prefix → confirm a
    new object exists for this purchase (path shape:
