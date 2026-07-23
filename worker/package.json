@@ -1,0 +1,14 @@
+{
+  "name": "forge-playbook-worker",
+  "version": "0.1.0",
+  "description": "Cloudflare Worker: verify-entitlement-then-serve gate for the Forge Playbook storefront",
+  "private": true,
+  "type": "module",
+  "main": "src/index.js",
+  "scripts": {
+    "test": "node --test tests/*.test.js"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
