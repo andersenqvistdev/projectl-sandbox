@@ -32,7 +32,10 @@ jobs:
         run: |
           if [ -f worker/package.json ]; then
             cd worker
-            npm ci --no-audit --no-fund
+            # npm install (not ci): the worker uses only Node built-ins and
+            # ships no package-lock.json; install succeeds with or without a
+            # lockfile and resolves any deps added later (e.g. a PDF library).
+            npm install --no-audit --no-fund
             npm test
           else
             echo "no worker tests yet (worker not built)"
