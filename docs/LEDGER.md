@@ -83,3 +83,20 @@ granted `MAX_GRANTS_PER_SESSION` (default 5, `worker/wrangler.toml`) fresh
 download links, further requests for that session are denied with 403. Only
 the *first* grant within that limit writes a ledger record; repeat grants
 reuse the same sale record.
+
+## Watermarked delivery and the order id
+
+Since the per-buyer watermarking feature, `session_id_sha256`'s first 8 hex
+characters double as the **order id** stamped into every delivered copy
+(see `docs/DEPLOY.md` for what gets stamped and how). The order id is
+derived from the exact same hash written to the ledger, so a watermarked
+copy can always be traced back to its ledger entry — and from there, via
+Stripe's dashboard (keyed by the pre-hash session id, which the operator
+still has), back to the original purchase.
+
+The order id itself is not sensitive (it's a truncated hash of an already-
+hashed value) and rides in the `/api/download` URL's `order` query param.
+The buyer's email and purchase date do not — they're looked up server-side
+from a short-lived `GRANTS_KV` record (`watermark:<order-id>`) written at
+grant time, never carried in the URL. See `worker/src/index.js` and
+`worker/src/watermark.js`.

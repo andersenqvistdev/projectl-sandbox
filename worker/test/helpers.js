@@ -1,3 +1,15 @@
+import { readFileSync } from 'node:fs';
+import { fileURLToPath } from 'node:url';
+import { dirname, join } from 'node:path';
+
+const __dirname = dirname(fileURLToPath(import.meta.url));
+const ASSETS_DIR = join(__dirname, '..', '..', 'assets');
+
+/** Loads a real sample deliverable from assets/ — the paid book itself is never in this repo. */
+export function loadSampleBytes(filename) {
+  return new Uint8Array(readFileSync(join(ASSETS_DIR, filename)));
+}
+
 export function createMockKV() {
   const store = new Map();
   return {
@@ -20,7 +32,14 @@ export function createMockR2() {
     },
     async get(key) {
       if (!store.has(key)) return null;
-      return store.get(key);
+      const entry = store.get(key);
+      return {
+        ...entry,
+        async arrayBuffer() {
+          const bytes = entry.body instanceof Uint8Array ? entry.body : new TextEncoder().encode(entry.body);
+          return bytes.buffer.slice(bytes.byteOffset, bytes.byteOffset + bytes.byteLength);
+        },
+      };
     },
   };
 }
@@ -58,11 +77,17 @@ export function createTestEnv({ sessions = {}, ...overrides } = {}) {
   };
 }
 
+// Unix seconds for 2026-07-23T12:00:00Z — fixed so watermark date assertions
+// in tests are deterministic rather than tied to whenever the test runs.
+const FIXED_PURCHASE_UNIX_SECONDS = 1784808000;
+
 export function paidSession(overrides = {}) {
   return {
     id: 'cs_test_paid_1',
     payment_status: 'paid',
     amount_total: 7900,
+    created: FIXED_PURCHASE_UNIX_SECONDS,
+    customer_details: { email: 'buyer@example.com' },
     ...overrides,
   };
 }
@@ -72,6 +97,8 @@ export function unpaidSession(overrides = {}) {
     id: 'cs_test_unpaid_1',
     payment_status: 'unpaid',
     amount_total: 7900,
+    created: FIXED_PURCHASE_UNIX_SECONDS,
+    customer_details: { email: 'buyer@example.com' },
     ...overrides,
   };
 }

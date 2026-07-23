@@ -45,3 +45,6 @@ dist/
 .company/employees/
 
 .DS_Store
+
+# Node (worker) — installed fresh by CI, never committed
+node_modules/

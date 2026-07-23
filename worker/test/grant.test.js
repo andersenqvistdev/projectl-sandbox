@@ -98,3 +98,20 @@ test('unknown entitlement type is denied with 403', async () => {
   );
   assert.equal(res.status, 403);
 });
+
+test('grant response carries an order id and writes the matching watermark record to GRANTS_KV', async () => {
+  const env = createTestEnv({ sessions: { cs_test_paid_1: paidSession() } });
+  const res = await worker.fetch(
+    new Request('https://example.com/api/grant?session_id=cs_test_paid_1'),
+    env
+  );
+  const body = await res.json();
+  const orderId = new URL(body.url).searchParams.get('order');
+  assert.match(orderId, /^[0-9a-f]{8}$/);
+
+  const raw = await env.GRANTS_KV.get(`watermark:${orderId}`);
+  assert.ok(raw, 'expected a watermark record for the order id');
+  const record = JSON.parse(raw);
+  assert.equal(record.buyerEmail, 'buyer@example.com');
+  assert.equal(record.purchasedAt, '2026-07-23');
+});
