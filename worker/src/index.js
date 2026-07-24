@@ -187,7 +187,9 @@ async function handleDownload(request, env) {
   let stampedBytes;
   try {
     const rawBytes = new Uint8Array(await object.arrayBuffer());
-    stampedBytes = await watermarker(rawBytes, watermarkText);
+    // The stride option only affects the PDF stamper (spread-sample of pages);
+    // the HTML and EPUB stampers ignore extra args.
+    stampedBytes = await watermarker(rawBytes, watermarkText, { stride: env.WATERMARK_PAGE_STRIDE });
   } catch (err) {
     return json({ error: 'failed to prepare watermarked delivery' }, 500);
   }
@@ -200,6 +202,12 @@ async function handleDownload(request, env) {
     },
   });
 }
+
+// Named exports so the route handlers can be reused by Cloudflare Pages
+// Functions (functions/api/*.js) without duplicating the gate logic. The
+// standalone Worker (default export below) and the Pages Functions share the
+// exact same handlers — deploy target differs, behaviour does not.
+export { handleGrant, handleDownload };
 
 export default {
   async fetch(request, env) {
