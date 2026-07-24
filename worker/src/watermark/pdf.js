@@ -1,18 +1,18 @@
 import { PDFDocument, StandardFonts, rgb } from 'pdf-lib';
 
-const FONT_SIZE = 8;
-const MARGIN = 18;
-const GRAY = rgb(0.55, 0.55, 0.55);
-const OPACITY = 0.45;
-// Stamp a spread sample of pages instead of every page, to stay well within
-// the Cloudflare Pages/Workers CPU budget. Honest caveat: the dominant cost is
-// PDFDocument.load()/save() (a whole-document parse + re-serialize), which is
-// fixed regardless of how many pages we draw on — so this trims the per-page
-// drawText work, not that fixed cost. The first and last pages are always
-// stamped (they're the obvious crop targets) and interior pages every STRIDE,
-// so the mark stays spread through the book and can't be removed by dropping
-// an edge page. Override the stride per-deploy with env.WATERMARK_PAGE_STRIDE.
-const DEFAULT_STRIDE = 10;
+const FONT_SIZE = 9;
+const MARGIN = 22;
+const GRAY = rgb(0.4, 0.4, 0.4);
+const OPACITY = 0.6;
+// Stamp EVERY page by default (stride 1). A watermark that can't be seen isn't
+// a deterrent, and — the honest reason the earlier "lighter" version was a bad
+// trade — the dominant Worker CPU cost is PDFDocument.load()/save() (a whole-
+// document parse + re-serialize), which is FIXED regardless of how many pages
+// we draw on. Skipping pages barely saved CPU but made the mark easy to miss.
+// The stride is still overridable per-deploy via env.WATERMARK_PAGE_STRIDE for
+// anyone who deliberately wants it thinned; the first and last pages are always
+// stamped so a thinned mark still can't be cropped off an edge.
+const DEFAULT_STRIDE = 1;
 
 function shouldStamp(index, lastIndex, stride) {
   return index === 0 || index === lastIndex || index % stride === 0;

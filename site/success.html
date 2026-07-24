@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Thank you — The Forge Playbook</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Hanken+Grotesk:wght@400;600;700&family=JetBrains+Mono&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --charred: #0b0705; --ember: #ff6a1a; --deep-ember: #c2440a;
+    --amber: #ffb347; --paper: #faf7f4;
+    --font-display: 'Anton', 'Arial Narrow', sans-serif;
+    --font-body: 'Hanken Grotesk', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    --font-mono: 'JetBrains Mono', ui-monospace, 'SF Mono', Menlo, monospace;
+  }
+  * { box-sizing: border-box; }
+  html { color-scheme: dark; }
+  body {
+    margin: 0; min-height: 100vh; background-color: var(--charred); color: var(--paper);
+    font-family: var(--font-body); line-height: 1.6; -webkit-font-smoothing: antialiased;
+    display: grid; place-items: center; padding: 1.5rem;
+  }
+  .brand-rule {
+    position: fixed; top: 0; left: 0; right: 0; height: 0.25rem;
+    background: linear-gradient(90deg, var(--deep-ember), var(--ember), var(--amber));
+  }
+  .card {
+    max-width: 34rem; width: 100%; text-align: center;
+    background: linear-gradient(160deg, rgba(255,106,26,0.10), rgba(11,7,5,0));
+    border: 1px solid rgba(255,106,26,0.25); border-radius: 0.75rem;
+    padding: clamp(2rem, 6vw, 3.5rem);
+  }
+  .eyebrow {
+    font-family: var(--font-mono); letter-spacing: 0.15em; text-transform: uppercase;
+    color: var(--ember); font-size: 0.8rem; margin: 0 0 1rem;
+  }
+  h1 {
+    font-family: var(--font-display); font-weight: 400; text-transform: uppercase;
+    letter-spacing: 0.01em; font-size: clamp(1.75rem, 5vw, 2.75rem); line-height: 1.05; margin: 0 0 1rem;
+  }
+  h1 span { color: var(--ember); }
+  #status { font-size: 1.1rem; color: var(--amber); margin: 1.25rem 0; min-height: 1.6em; }
+  .btn {
+    display: inline-block; font-family: var(--font-body); font-weight: 700; font-size: 1.05rem;
+    color: var(--charred); background: linear-gradient(90deg, var(--amber), var(--ember));
+    padding: 0.9rem 2rem; border-radius: 0.25rem; text-decoration: none; margin-top: 0.5rem;
+    box-shadow: 0 0.75rem 1.75rem rgba(255,106,26,0.3);
+  }
+  .fine { font-size: 0.85rem; color: var(--paper); opacity: 0.6; margin-top: 1.75rem; }
+  .fine a { color: var(--amber); }
+  .spin {
+    display: inline-block; width: 1rem; height: 1rem; margin-right: 0.5rem; vertical-align: -2px;
+    border: 2px solid rgba(255,179,71,0.35); border-top-color: var(--amber); border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+</style>
+</head>
+<body>
+<div class="brand-rule"></div>
+<main class="card">
+  <p class="eyebrow">Forge Framework // Field Manual</p>
+  <h1>Thank you<span>.</span></h1>
+  <p id="status"><span class="spin"></span>Preparing your watermarked download…</p>
+  <div id="action"></div>
+  <p class="fine">Your copy is personalised with your order details on every page. Trouble downloading? Email
+    <a href="mailto:support@forgeframework.dev">support@forgeframework.dev</a> with your order confirmation.</p>
+</main>
+
+<script>
+  // Stripe redirects here after payment with ?session_id={CHECKOUT_SESSION_ID}.
+  // We exchange that session for a short-lived, signed download URL via the
+  // gate (/api/grant), which verifies the payment server-side, then start the
+  // download of the per-buyer watermarked copy. The raw book is never exposed.
+  (async () => {
+    const statusEl = document.getElementById('status');
+    const actionEl = document.getElementById('action');
+    const params = new URLSearchParams(location.search);
+    const sessionId = params.get('session_id');
+
+    function fail(msg) {
+      statusEl.textContent = msg;
+      actionEl.innerHTML = '<a class="btn" href="/">Back to the storefront</a>';
+    }
+
+    if (!sessionId) {
+      return fail('We could not find your checkout session. If you completed payment, contact support and we will send your copy.');
+    }
+
+    try {
+      const res = await fetch('/api/grant?session_id=' + encodeURIComponent(sessionId));
+      const data = await res.json();
+      if (res.ok && data.url) {
+        statusEl.textContent = 'Your download is starting.';
+        actionEl.innerHTML = '<a class="btn" href="' + data.url + '">Download the Playbook</a>';
+        location.href = data.url; // auto-start; the button is the fallback
+      } else {
+        fail(data.error ? ('We could not confirm this purchase: ' + data.error) : 'We could not confirm this purchase.');
+      }
+    } catch (e) {
+      fail('Something went wrong preparing your download. Please contact support with your order confirmation.');
+    }
+  })();
+</script>
+</body>
+</html>
