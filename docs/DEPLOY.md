@@ -18,6 +18,29 @@ public repo only ships free samples (`assets/forge-playbook-sample.*`). You
 supply the real, sellable file (e.g. from your own content pipeline's build
 output) directly to R2 in step 3 — it never touches source control.
 
+## Two ways to deploy the gate — pick one
+
+The gate logic lives once in `worker/src/`. It can run in two Cloudflare
+shapes; the code and tests are identical, only the deploy differs.
+
+**Path A — Cloudflare Pages Functions (recommended if your site deploys via
+Pages + GitHub).** The `functions/api/grant.js` and `functions/api/download.js`
+adapters expose the same handlers as Pages Functions. When you copy `functions/`
+and `worker/src/` into your Pages-connected repo, the gate deploys
+*automatically on every GitHub push*, alongside the static storefront — no
+separate `wrangler deploy`. Bindings and secrets (R2 bucket, `GRANTS_KV`,
+`STRIPE_SECRET_KEY`, the vars) are configured in the **Pages project → Settings
+→ Functions** dashboard rather than in `wrangler.toml`. The endpoints are served
+from your own domain at `/api/grant` and `/api/download`. Skip the `wrangler
+deploy` in step 5; do the R2/KV/secret setup of step 3 in the Pages dashboard.
+
+**Path B — Standalone Worker (`wrangler deploy`).** Deploy `worker/` on its own
+(steps 3–5 below, using `wrangler.toml`); the storefront calls its URL. Use this
+if you don't run the site through Pages.
+
+Everything else (Stripe link, uploading the un-watermarked book to R2, the test
+purchase, promoting the storefront) is the same for both paths.
+
 ## Prerequisites
 
 - A Cloudflare account with Workers and R2 enabled, and `wrangler` available
