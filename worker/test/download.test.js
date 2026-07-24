@@ -117,7 +117,7 @@ async function grantAndDownload(env, product) {
   return new Uint8Array(await downloadRes.arrayBuffer());
 }
 
-test('PDF delivery is watermarked with the order id and purchase date on a spread sample of pages, never the raw bytes', async () => {
+test('PDF delivery is watermarked with the order id and purchase date on every page, never the raw bytes', async () => {
   const env = createTestEnv({
     sessions: { cs_test_paid_1: paidSession() },
     DEFAULT_PRODUCT: 'forge-playbook-pdf',

@@ -98,10 +98,17 @@ finished, not a broken/dangerous one.
    the customer actually paid.
 2. **Payment links → Create payment link**, select the product from step 1.
 3. Under **After payment**, choose **Redirect customers to your website**
-   and set the URL to the Worker's grant route with Stripe's session-id
-   placeholder appended — see step 4, which must happen first or you'll be
-   editing this URL twice. It's fine to save the link now with a placeholder
-   and come back to fix the redirect URL after step 4.
+   and set the URL to the **success page**, with Stripe's session-id
+   placeholder appended:
+   ```
+   https://<your-domain>/success.html?session_id={CHECKOUT_SESSION_ID}
+   ```
+   Do **not** point it straight at `/api/grant` — that route returns JSON,
+   not a page. `success.html` (shipped in `site/`) is the bridge: it reads
+   the `session_id`, calls `/api/grant` to exchange it for a signed download
+   URL, and starts the watermarked download. Stripe substitutes the real id
+   for `{CHECKOUT_SESSION_ID}` automatically. It's fine to save the link now
+   with a placeholder domain and fix this URL after the site is deployed.
 4. Copy the generated payment link URL (`https://buy.stripe.com/...`).
 5. **Do not wire this into the live production `config.js` yet.** Hold the
    real link until the Worker is deployed and the redirect is wired (step
